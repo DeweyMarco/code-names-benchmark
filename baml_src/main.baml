@@ -89,7 +89,12 @@ function MakeGuesses(
     This means your spymaster wants you to guess {{ hint_count }} word(s) related to "{{ hint_word }}".
 
     WORDS ON THE BOARD (unrevealed):
-    {% set unrevealed = board_words | reject('in', revealed_words) | list %}
+    {% set unrevealed = [] %}
+    {% for word in board_words %}
+      {% if word not in revealed_words %}
+        {% set unrevealed = unrevealed + [word] %}
+      {% endif %}
+    {% endfor %}
     {{ unrevealed | join(', ') }}
 
     {% if revealed_words | length > 0 %}

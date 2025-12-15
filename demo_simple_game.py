@@ -12,16 +12,31 @@ The game is VERBOSE so you can see every step clearly.
 
 Setup:
 1. Install dependencies: pip install -r requirements.txt
-2. Set your API key(s) in .env file (OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY, etc.)
+2. Set your API key(s) in .env file (OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, etc.)
 3. Configure models in the Players class (lines 35-38)
-4. Run: python3 demo_gemini_simple.py
+4. Run: python3 demo_simple_game.py
 
 Available Models:
-- BAMLModel.GPT4O_MINI, GPT4O, GPT4_TURBO
-- BAMLModel.CLAUDE_SONNET, CLAUDE_35_SONNET, CLAUDE_OPUS
-- BAMLModel.GEMINI_25_PRO, GEMINI_25_FLASH, GEMINI_25_FLASH_LITE
-- BAMLModel.GEMINI_20_FLASH, GEMINI_20_FLASH_LITE
-- BAMLModel.DEEPSEEK, GROK, LLAMA
+OpenAI:
+  - GPT-5: GPT5, GPT5_MINI, GPT5_NANO, GPT5_CHAT, GPT5_PRO
+  - GPT-4.1: GPT41, GPT41_MINI, GPT41_NANO
+  - Reasoning: O4_MINI, O3_MINI, O3, O1, O1_MINI, O1_PREVIEW
+  - GPT-4o: GPT4O, GPT4O_MINI, GPT4O_20240806, GPT4O_MINI_20240718
+  - GPT-4: GPT4_TURBO, GPT4, GPT4_32K, GPT4_0613
+  - GPT-3.5: GPT35_TURBO, GPT35_TURBO_16K, GPT35_TURBO_INSTRUCT
+Anthropic:
+  - Claude 4.5: CLAUDE_SONNET_45, CLAUDE_HAIKU_45
+  - Claude 4.1: CLAUDE_OPUS_41
+  - Claude 4: CLAUDE_SONNET_4, CLAUDE_OPUS_4
+  - Claude 3: CLAUDE_SONNET_37, CLAUDE_HAIKU_35, CLAUDE_HAIKU_3
+Google:
+  - Gemini 2.5: GEMINI_25_PRO, GEMINI_25_FLASH, GEMINI_25_FLASH_LITE
+  - Gemini 2.0: GEMINI_20_FLASH, GEMINI_20_FLASH_LITE
+DeepSeek: DEEPSEEK_CHAT, DEEPSEEK_REASONER
+xAI Grok:
+  - Grok 4: GROK4, GROK4_FAST_REASONING, GROK4_FAST_NON_REASONING
+  - Grok 3: GROK3, GROK3_FAST, GROK3_MINI, GROK3_MINI_FAST
+Meta: LLAMA
 """
 
 import os
@@ -47,7 +62,7 @@ class Players:
 
 # ANSI color codes
 class Colors:
-    BLUE = '\033[94m'
+    BLUE = '\033[96m'
     RED = '\033[91m'
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
@@ -60,40 +75,152 @@ class Colors:
 
 # Model to API key mapping
 MODEL_TO_API_KEY = {
-    BAMLModel.GPT4O_MINI: "OPENAI_API_KEY",
+    # OpenAI - GPT-5 Series
+    BAMLModel.GPT5: "OPENAI_API_KEY",
+    BAMLModel.GPT5_MINI: "OPENAI_API_KEY",
+    BAMLModel.GPT5_NANO: "OPENAI_API_KEY",
+    BAMLModel.GPT5_CHAT: "OPENAI_API_KEY",
+    BAMLModel.GPT5_PRO: "OPENAI_API_KEY",
+    # OpenAI - GPT-4.1 Series
+    BAMLModel.GPT41: "OPENAI_API_KEY",
+    BAMLModel.GPT41_MINI: "OPENAI_API_KEY",
+    BAMLModel.GPT41_NANO: "OPENAI_API_KEY",
+    # OpenAI - Reasoning Models (o-series)
+    BAMLModel.O4_MINI: "OPENAI_API_KEY",
+    BAMLModel.O3_MINI: "OPENAI_API_KEY",
+    BAMLModel.O3: "OPENAI_API_KEY",
+    BAMLModel.O1: "OPENAI_API_KEY",
+    BAMLModel.O1_MINI: "OPENAI_API_KEY",
+    BAMLModel.O1_PREVIEW: "OPENAI_API_KEY",
+    # OpenAI - GPT-4o Series
     BAMLModel.GPT4O: "OPENAI_API_KEY",
+    BAMLModel.GPT4O_MINI: "OPENAI_API_KEY",
+    BAMLModel.GPT4O_20240806: "OPENAI_API_KEY",
+    BAMLModel.GPT4O_MINI_20240718: "OPENAI_API_KEY",
+    # OpenAI - GPT-4 Turbo Series
     BAMLModel.GPT4_TURBO: "OPENAI_API_KEY",
-    BAMLModel.CLAUDE_SONNET: "ANTHROPIC_API_KEY",
-    BAMLModel.CLAUDE_35_SONNET: "ANTHROPIC_API_KEY",
-    BAMLModel.CLAUDE_OPUS: "ANTHROPIC_API_KEY",
-    BAMLModel.GEMINI_25_PRO: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
-    BAMLModel.GEMINI_25_FLASH: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
-    BAMLModel.GEMINI_25_FLASH_LITE: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
-    BAMLModel.GEMINI_20_FLASH: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
-    BAMLModel.GEMINI_20_FLASH_LITE: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
-    BAMLModel.DEEPSEEK: "DEEPSEEK_API_KEY",
-    BAMLModel.GROK: "GROK_API_KEY",
-    BAMLModel.LLAMA: "LLAMA_API_KEY",
+    BAMLModel.GPT4_TURBO_PREVIEW: "OPENAI_API_KEY",
+    BAMLModel.GPT4_0125_PREVIEW: "OPENAI_API_KEY",
+    BAMLModel.GPT4_1106_PREVIEW: "OPENAI_API_KEY",
+    # OpenAI - GPT-4 Base Series
+    BAMLModel.GPT4: "OPENAI_API_KEY",
+    BAMLModel.GPT4_32K: "OPENAI_API_KEY",
+    BAMLModel.GPT4_0613: "OPENAI_API_KEY",
+    # OpenAI - GPT-3.5 Series
+    BAMLModel.GPT35_TURBO: "OPENAI_API_KEY",
+    BAMLModel.GPT35_TURBO_16K: "OPENAI_API_KEY",
+    BAMLModel.GPT35_TURBO_INSTRUCT: "OPENAI_API_KEY",
+    # Anthropic - Claude 4.5 Series
+    BAMLModel.CLAUDE_SONNET_45: "ANTHROPIC_API_KEY",
+    BAMLModel.CLAUDE_HAIKU_45: "ANTHROPIC_API_KEY",
+    # Anthropic - Claude 4.1 Series
+    BAMLModel.CLAUDE_OPUS_41: "ANTHROPIC_API_KEY",
+    # Anthropic - Claude 4 Series
+    BAMLModel.CLAUDE_SONNET_4: "ANTHROPIC_API_KEY",
+    BAMLModel.CLAUDE_OPUS_4: "ANTHROPIC_API_KEY",
+    # Anthropic - Claude 3.7 Series
+    BAMLModel.CLAUDE_SONNET_37: "ANTHROPIC_API_KEY",
+    # Anthropic - Claude 3.5 Series
+    BAMLModel.CLAUDE_HAIKU_35: "ANTHROPIC_API_KEY",
+    # Anthropic - Claude 3 Series
+    BAMLModel.CLAUDE_HAIKU_3: "ANTHROPIC_API_KEY",
+    # Google - Gemini 2.5 Series
+    BAMLModel.GEMINI_25_PRO: "GOOGLE_API_KEY",
+    BAMLModel.GEMINI_25_FLASH: "GOOGLE_API_KEY",
+    BAMLModel.GEMINI_25_FLASH_LITE: "GOOGLE_API_KEY",
+    # Google - Gemini 2.0 Series
+    BAMLModel.GEMINI_20_FLASH: "GOOGLE_API_KEY",
+    BAMLModel.GEMINI_20_FLASH_LITE: "GOOGLE_API_KEY",
+    # DeepSeek V3.2-Exp
+    BAMLModel.DEEPSEEK_CHAT: "DEEPSEEK_API_KEY",
+    BAMLModel.DEEPSEEK_REASONER: "DEEPSEEK_API_KEY",
+    # xAI - Grok 4 Series
+    BAMLModel.GROK4: "XAI_API_KEY",
+    BAMLModel.GROK4_FAST_REASONING: "XAI_API_KEY",
+    BAMLModel.GROK4_FAST_NON_REASONING: "XAI_API_KEY",
+    # xAI - Grok 3 Series
+    BAMLModel.GROK3: "XAI_API_KEY",
+    BAMLModel.GROK3_FAST: "XAI_API_KEY",
+    BAMLModel.GROK3_MINI: "XAI_API_KEY",
+    BAMLModel.GROK3_MINI_FAST: "XAI_API_KEY",
+    # Meta Llama (via Together AI)
+    BAMLModel.LLAMA: "TOGETHER_API_KEY",
 }
 
 
 def get_model_display_name(model: BAMLModel) -> str:
     """Get a user-friendly display name for a model."""
     name_map = {
-        BAMLModel.GPT4O_MINI: "GPT-4o Mini",
+        # OpenAI - GPT-5 Series
+        BAMLModel.GPT5: "GPT-5",
+        BAMLModel.GPT5_MINI: "GPT-5 Mini",
+        BAMLModel.GPT5_NANO: "GPT-5 Nano",
+        BAMLModel.GPT5_CHAT: "GPT-5 Chat",
+        BAMLModel.GPT5_PRO: "GPT-5 Pro",
+        # OpenAI - GPT-4.1 Series
+        BAMLModel.GPT41: "GPT-4.1",
+        BAMLModel.GPT41_MINI: "GPT-4.1 Mini",
+        BAMLModel.GPT41_NANO: "GPT-4.1 Nano",
+        # OpenAI - Reasoning Models (o-series)
+        BAMLModel.O4_MINI: "o4-mini",
+        BAMLModel.O3_MINI: "o3-mini",
+        BAMLModel.O3: "o3",
+        BAMLModel.O1: "o1",
+        BAMLModel.O1_MINI: "o1-mini",
+        BAMLModel.O1_PREVIEW: "o1-preview",
+        # OpenAI - GPT-4o Series
         BAMLModel.GPT4O: "GPT-4o",
+        BAMLModel.GPT4O_MINI: "GPT-4o Mini",
+        BAMLModel.GPT4O_20240806: "GPT-4o (2024-08-06)",
+        BAMLModel.GPT4O_MINI_20240718: "GPT-4o Mini (2024-07-18)",
+        # OpenAI - GPT-4 Turbo Series
         BAMLModel.GPT4_TURBO: "GPT-4 Turbo",
-        BAMLModel.CLAUDE_SONNET: "Claude Sonnet 4.5",
-        BAMLModel.CLAUDE_35_SONNET: "Claude 3.5 Sonnet",
-        BAMLModel.CLAUDE_OPUS: "Claude 3 Opus",
+        BAMLModel.GPT4_TURBO_PREVIEW: "GPT-4 Turbo Preview",
+        BAMLModel.GPT4_0125_PREVIEW: "GPT-4 (0125-preview)",
+        BAMLModel.GPT4_1106_PREVIEW: "GPT-4 (1106-preview)",
+        # OpenAI - GPT-4 Base Series
+        BAMLModel.GPT4: "GPT-4",
+        BAMLModel.GPT4_32K: "GPT-4 32K",
+        BAMLModel.GPT4_0613: "GPT-4 (0613)",
+        # OpenAI - GPT-3.5 Series
+        BAMLModel.GPT35_TURBO: "GPT-3.5 Turbo",
+        BAMLModel.GPT35_TURBO_16K: "GPT-3.5 Turbo 16K",
+        BAMLModel.GPT35_TURBO_INSTRUCT: "GPT-3.5 Turbo Instruct",
+        # Anthropic - Claude 4.5 Series
+        BAMLModel.CLAUDE_SONNET_45: "Claude Sonnet 4.5",
+        BAMLModel.CLAUDE_HAIKU_45: "Claude Haiku 4.5",
+        # Anthropic - Claude 4.1 Series
+        BAMLModel.CLAUDE_OPUS_41: "Claude Opus 4.1",
+        # Anthropic - Claude 4 Series
+        BAMLModel.CLAUDE_SONNET_4: "Claude Sonnet 4",
+        BAMLModel.CLAUDE_OPUS_4: "Claude Opus 4",
+        # Anthropic - Claude 3.7 Series
+        BAMLModel.CLAUDE_SONNET_37: "Claude Sonnet 3.7",
+        # Anthropic - Claude 3.5 Series
+        BAMLModel.CLAUDE_HAIKU_35: "Claude Haiku 3.5",
+        # Anthropic - Claude 3 Series
+        BAMLModel.CLAUDE_HAIKU_3: "Claude Haiku 3",
+        # Google - Gemini 2.5 Series
         BAMLModel.GEMINI_25_PRO: "Gemini 2.5 Pro",
         BAMLModel.GEMINI_25_FLASH: "Gemini 2.5 Flash",
         BAMLModel.GEMINI_25_FLASH_LITE: "Gemini 2.5 Flash Lite",
+        # Google - Gemini 2.0 Series
         BAMLModel.GEMINI_20_FLASH: "Gemini 2.0 Flash",
         BAMLModel.GEMINI_20_FLASH_LITE: "Gemini 2.0 Flash Lite",
-        BAMLModel.DEEPSEEK: "DeepSeek",
-        BAMLModel.GROK: "Grok",
-        BAMLModel.LLAMA: "Llama",
+        # DeepSeek V3.2-Exp
+        BAMLModel.DEEPSEEK_CHAT: "DeepSeek Chat",
+        BAMLModel.DEEPSEEK_REASONER: "DeepSeek Reasoner",
+        # xAI - Grok 4 Series
+        BAMLModel.GROK4: "Grok 4",
+        BAMLModel.GROK4_FAST_REASONING: "Grok 4 Fast Reasoning",
+        BAMLModel.GROK4_FAST_NON_REASONING: "Grok 4 Fast Non-Reasoning",
+        # xAI - Grok 3 Series
+        BAMLModel.GROK3: "Grok 3",
+        BAMLModel.GROK3_FAST: "Grok 3 Fast",
+        BAMLModel.GROK3_MINI: "Grok 3 Mini",
+        BAMLModel.GROK3_MINI_FAST: "Grok 3 Mini Fast",
+        # Meta Llama (via Together AI)
+        BAMLModel.LLAMA: "Llama 3 70B",
     }
     return name_map.get(model, model.value)
 
@@ -194,14 +321,14 @@ def main():
             print("     • OpenAI: https://platform.openai.com/api-keys")
         if "ANTHROPIC_API_KEY" in unique_keys:
             print("     • Anthropic: https://console.anthropic.com/settings/keys")
-        if "GEMINI_API_KEY" in unique_keys or "GOOGLE_API_KEY" in unique_keys:
+        if "GOOGLE_API_KEY" in unique_keys:
             print("     • Google/Gemini: https://aistudio.google.com/app/apikey")
         if "DEEPSEEK_API_KEY" in unique_keys:
             print("     • DeepSeek: https://platform.deepseek.com/")
-        if "GROK_API_KEY" in unique_keys:
-            print("     • Grok: https://console.x.ai/")
-        if "LLAMA_API_KEY" in unique_keys:
-            print("     • Llama: Check your provider's documentation")
+        if "XAI_API_KEY" in unique_keys:
+            print("     • xAI (Grok): https://console.x.ai/")
+        if "TOGETHER_API_KEY" in unique_keys:
+            print("     • Together AI (for Llama): https://api.together.xyz/")
 
         print(f"\n  3. Add the key(s) to your .env file:")
         for key in sorted(unique_keys):
@@ -357,7 +484,7 @@ def main():
     print("\nTo run another game with different models:")
     print("  1. Edit the Players class in this file (lines 41-44)")
     print("  2. Change the BAMLModel values to any available model")
-    print("  3. Run: python3 demo_gemini_simple.py")
+    print("  3. Run: python3 demo_simple_game.py")
     print("\nTo try other demos, check out: demo_llm_game.py")
     print()
 

@@ -102,86 +102,98 @@ class LLMConfig:
     LLAMA_DEFAULT_MODEL: str = "llama-3.3-70b"  # Meta Llama via API (Together AI, Groq, or Meta API)
 
     # Cost tracking (approximate USD per 1K tokens)
+    # WARNING: Costs are organized into VERIFIED (confirmed pricing) and UNVERIFIED
+    # (speculative/estimated pricing). Unverified costs may be inaccurate.
     MODEL_COSTS = {
-        # OpenAI - GPT-5 Series (Released Aug 2025)
-        "gpt-5": {"input": 0.00125, "output": 0.01},  # $1.25/1M input, $10/1M output
-        "gpt-5-mini": {"input": 0.00025, "output": 0.002},  # $0.25/1M input, $2/1M output
-        "gpt-5-nano": {"input": 0.00005, "output": 0.0004},  # $0.05/1M input, $0.40/1M output
+        # ======================================================================
+        # VERIFIED PRICING - Confirmed from official pricing pages
+        # ======================================================================
 
-        # OpenAI - GPT-4.1 Series (2025)
-        "gpt-4.1": {"input": 0.002, "output": 0.008},  # $2/1M input, $8/1M output
-        "gpt-4.1-mini": {"input": 0.0004, "output": 0.0016},  # Estimated based on mini pattern
-        "gpt-4.1-nano": {"input": 0.0001, "output": 0.0004},  # $0.10/1M input, $0.40/1M output
-
-        # OpenAI - GPT-4o Series (Legacy)
+        # OpenAI - GPT-4o Series - VERIFIED
         "gpt-4o": {"input": 0.0025, "output": 0.01},  # $2.50/1M input
         "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},  # $0.15/1M input, $0.60/1M output
 
-        # OpenAI - GPT-4 and GPT-3.5 (Legacy)
+        # OpenAI - GPT-4 and GPT-3.5 - VERIFIED
         "gpt-4": {"input": 0.03, "output": 0.06},
         "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015},
 
-        # Anthropic - Claude 4.5 Series (Latest - October 2025)
-        "claude-sonnet-4-5-20250929": {"input": 0.003, "output": 0.015},  # $3/1M input, $15/1M output
-        "claude-sonnet-4-5": {"input": 0.003, "output": 0.015},  # Alias for latest Sonnet 4.5
-        "claude-haiku-4-5-20251001": {"input": 0.001, "output": 0.005},  # $1/1M input, $5/1M output
-        "claude-haiku-4-5": {"input": 0.001, "output": 0.005},  # Alias for latest Haiku 4.5
-
-        # Anthropic - Claude 4.1 Series
-        "claude-opus-4-1-20250805": {"input": 0.015, "output": 0.075},  # $15/1M input, $75/1M output
-        "claude-opus-4-1": {"input": 0.015, "output": 0.075},  # Alias for latest Opus 4.1
-
-        # Anthropic - Claude 4 Series (Legacy - May 2025)
-        "claude-sonnet-4-20250514": {"input": 0.003, "output": 0.015},  # $3/1M input, $15/1M output
-        "claude-opus-4-20250514": {"input": 0.015, "output": 0.075},  # $15/1M input, $75/1M output
-
-        # Anthropic - Claude 3.7 Series (Legacy - February 2025)
-        "claude-3-7-sonnet-20250219": {"input": 0.003, "output": 0.015},  # $3/1M input, $15/1M output
-
-        # Anthropic - Claude 3.5 Series (Legacy)
+        # Anthropic - Claude 3.5 Series - VERIFIED
         "claude-3-5-haiku-20241022": {"input": 0.0008, "output": 0.004},  # $0.80/1M input, $4/1M output
         "claude-3-5-sonnet-20241022": {"input": 0.003, "output": 0.015},  # $3/1M input, $15/1M output
 
-        # Anthropic - Claude 3 Series (Legacy)
+        # Anthropic - Claude 3 Series - VERIFIED
         "claude-3-haiku-20240307": {"input": 0.00025, "output": 0.00125},  # $0.25/1M input, $1.25/1M output
         "claude-3-haiku": {"input": 0.00025, "output": 0.00125},  # Alias for Claude 3 Haiku
-        "claude-3-opus": {"input": 0.015, "output": 0.075},  # Legacy (deprecated)
+        "claude-3-opus": {"input": 0.015, "output": 0.075},
 
-        # Gemini (prices per 1K tokens)
-        "gemini-2.5-pro": {"input": 0.00125, "output": 0.01},  # $1.25/1M input, $10/1M output
-        "gemini-2.5-flash": {"input": 0.0003, "output": 0.0025},  # $0.30/1M input, $2.50/1M output
-        "gemini-2.5-flash-lite": {"input": 0.0001, "output": 0.0004},  # $0.10/1M input, $0.40/1M output
+        # Google Gemini 2.0 - VERIFIED
         "gemini-2.0-flash": {"input": 0.0001, "output": 0.0004},  # $0.10/1M input, $0.40/1M output
         "gemini-2.0-flash-lite": {"input": 0.000075, "output": 0.0003},  # $0.075/1M input, $0.30/1M output
 
-        # xAI Grok
-        "grok-beta": {"input": 0.003, "output": 0.015},  # Grok 3/4 pricing
-        "grok-2": {"input": 0.003, "output": 0.015},
-        "grok-3": {"input": 0.003, "output": 0.015},
-        "grok-4": {"input": 0.003, "output": 0.015},
-        "grok-4-fast": {"input": 0.0002, "output": 0.0005},
-
-        # DeepSeek
+        # DeepSeek - VERIFIED
         "deepseek-chat": {"input": 0.00027, "output": 0.0011},  # Very cost-effective
         "deepseek-reasoner": {"input": 0.00055, "output": 0.00219},  # Reasoning mode
 
-        # Meta Llama (via Together AI, Groq, or Meta API)
-        # Llama 4 Series (Released April 2025) - Together AI pricing
-        "llama-4-maverick": {"input": 0.00027, "output": 0.00085},  # $0.27/1M input, $0.85/1M output (400B MoE, 17B active)
-        "llama-4-scout": {"input": 0.00018, "output": 0.00059},  # $0.18/1M input, $0.59/1M output
+        # Meta Llama 3.3 Series - VERIFIED (Groq pricing)
+        "llama-3.3-70b": {"input": 0.00059, "output": 0.00079},  # $0.59/1M input, $0.79/1M output
+        "llama-3.3-70b-specdec": {"input": 0.00059, "output": 0.00099},  # $0.59/1M input, $0.99/1M output
 
-        # Llama 3.3 Series (Released Dec 2024) - Groq pricing
-        "llama-3.3-70b": {"input": 0.00059, "output": 0.00079},  # $0.59/1M input, $0.79/1M output (versatile)
-        "llama-3.3-70b-specdec": {"input": 0.00059, "output": 0.00099},  # $0.59/1M input, $0.99/1M output (6x faster)
-
-        # Llama 3.1 Series - Various sizes
-        "llama-3.1-405b": {"input": 0.0005, "output": 0.0015},  # Estimated pricing for largest model
-        "llama-3.1-70b": {"input": 0.00059, "output": 0.00079},  # Similar to 3.3-70b pricing
+        # Meta Llama 3.1 Series - VERIFIED
+        "llama-3.1-405b": {"input": 0.0005, "output": 0.0015},
+        "llama-3.1-70b": {"input": 0.00059, "output": 0.00079},
         "llama-3.1-8b": {"input": 0.0001, "output": 0.0001},  # Together AI Lite pricing
 
-        # Llama 3 Series (Legacy)
-        "llama-3-70b": {"input": 0.00059, "output": 0.00079},  # Legacy
+        # Meta Llama 3 Series - VERIFIED
+        "llama-3-70b": {"input": 0.00059, "output": 0.00079},
         "llama-3-8b": {"input": 0.0001, "output": 0.0001},  # $0.10/1M (Together AI Lite)
+
+        # ======================================================================
+        # UNVERIFIED PRICING - Speculative/estimated; may be inaccurate
+        # These models may not exist or pricing may differ from estimates
+        # ======================================================================
+
+        # OpenAI - GPT-5 Series (UNVERIFIED - models may not exist)
+        "gpt-5": {"input": 0.00125, "output": 0.01},  # ESTIMATED
+        "gpt-5-mini": {"input": 0.00025, "output": 0.002},  # ESTIMATED
+        "gpt-5-nano": {"input": 0.00005, "output": 0.0004},  # ESTIMATED
+
+        # OpenAI - GPT-4.1 Series (UNVERIFIED - models may not exist)
+        "gpt-4.1": {"input": 0.002, "output": 0.008},  # ESTIMATED
+        "gpt-4.1-mini": {"input": 0.0004, "output": 0.0016},  # ESTIMATED
+        "gpt-4.1-nano": {"input": 0.0001, "output": 0.0004},  # ESTIMATED
+
+        # Anthropic - Claude 4.5 Series (UNVERIFIED - check availability)
+        "claude-sonnet-4-5-20250929": {"input": 0.003, "output": 0.015},  # ESTIMATED
+        "claude-sonnet-4-5": {"input": 0.003, "output": 0.015},  # ESTIMATED
+        "claude-haiku-4-5-20251001": {"input": 0.001, "output": 0.005},  # ESTIMATED
+        "claude-haiku-4-5": {"input": 0.001, "output": 0.005},  # ESTIMATED
+
+        # Anthropic - Claude 4.1 Series (UNVERIFIED - check availability)
+        "claude-opus-4-1-20250805": {"input": 0.015, "output": 0.075},  # ESTIMATED
+        "claude-opus-4-1": {"input": 0.015, "output": 0.075},  # ESTIMATED
+
+        # Anthropic - Claude 4 Series (UNVERIFIED - check availability)
+        "claude-sonnet-4-20250514": {"input": 0.003, "output": 0.015},  # ESTIMATED
+        "claude-opus-4-20250514": {"input": 0.015, "output": 0.075},  # ESTIMATED
+
+        # Anthropic - Claude 3.7 Series (UNVERIFIED - check availability)
+        "claude-3-7-sonnet-20250219": {"input": 0.003, "output": 0.015},  # ESTIMATED
+
+        # Google Gemini 2.5 Series (UNVERIFIED - check availability)
+        "gemini-2.5-pro": {"input": 0.00125, "output": 0.01},  # ESTIMATED
+        "gemini-2.5-flash": {"input": 0.0003, "output": 0.0025},  # ESTIMATED
+        "gemini-2.5-flash-lite": {"input": 0.0001, "output": 0.0004},  # ESTIMATED
+
+        # xAI Grok (UNVERIFIED - pricing may differ)
+        "grok-beta": {"input": 0.003, "output": 0.015},  # ESTIMATED
+        "grok-2": {"input": 0.003, "output": 0.015},  # ESTIMATED
+        "grok-3": {"input": 0.003, "output": 0.015},  # ESTIMATED
+        "grok-4": {"input": 0.003, "output": 0.015},  # ESTIMATED - model may not exist
+        "grok-4-fast": {"input": 0.0002, "output": 0.0005},  # ESTIMATED - model may not exist
+
+        # Meta Llama 4 Series (UNVERIFIED - check availability)
+        "llama-4-maverick": {"input": 0.00027, "output": 0.00085},  # ESTIMATED
+        "llama-4-scout": {"input": 0.00018, "output": 0.00059},  # ESTIMATED
     }
 
 

@@ -11,7 +11,7 @@ client<llm> GPT5 {
   options {
     model "gpt-5"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -20,7 +20,7 @@ client<llm> GPT5Mini {
   options {
     model "gpt-5-mini"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -29,7 +29,7 @@ client<llm> GPT5Nano {
   options {
     model "gpt-5-nano"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -38,7 +38,7 @@ client<llm> GPT5Chat {
   options {
     model "gpt-5-chat-latest"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -47,7 +47,7 @@ client<llm> GPT5Pro {
   options {
     model "gpt-5-pro"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -85,7 +85,7 @@ client<llm> O4Mini {
   options {
     model "o4-mini"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -94,7 +94,7 @@ client<llm> O3Mini {
   options {
     model "o3-mini"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -103,7 +103,7 @@ client<llm> O3 {
   options {
     model "o3"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -112,7 +112,7 @@ client<llm> O1 {
   options {
     model "o1"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -121,7 +121,7 @@ client<llm> O1Mini {
   options {
     model "o1-mini"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 
@@ -130,7 +130,7 @@ client<llm> O1Preview {
   options {
     model "o1-preview"
     api_key env.OPENAI_API_KEY
-    temperature 0.7
+    temperature 1.0
   }
 }
 

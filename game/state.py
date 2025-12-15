@@ -1,11 +1,14 @@
 """
 Game state management for Codenames.
 """
+import logging
 from enum import Enum
 from typing import List, Set, Optional, Tuple
 from dataclasses import dataclass, field
 
 from .board import Board, CardColor
+
+logger = logging.getLogger(__name__)
 
 
 class Team(Enum):
@@ -42,10 +45,18 @@ class Turn:
     hint_word: str
     hint_count: int
     guesses: List[TurnResult] = field(default_factory=list)
+    invalid_guess_word: Optional[str] = None
+    invalid_guess_reason: Optional[str] = None
     
     def __str__(self):
         guess_str = ", ".join(str(g) for g in self.guesses)
-        return f"Turn {self.turn_number} ({self.team.value}): '{self.hint_word}' ({self.hint_count}) → [{guess_str}]"
+        invalid = ""
+        if self.invalid_guess_word:
+            invalid = f" | Invalid guess: {self.invalid_guess_word} ({self.invalid_guess_reason})"
+        return (
+            f"Turn {self.turn_number} ({self.team.value}): '{self.hint_word}' "
+            f"({self.hint_count}) → [{guess_str}]{invalid}"
+        )
 
 
 class GameState:
@@ -168,6 +179,13 @@ class GameState:
         
         if not self.is_game_over:
             self._current_team = Team.RED if self._current_team == Team.BLUE else Team.BLUE
+
+    def record_invalid_guess(self, word: str, reason: str):
+        """Record an invalid guess for the current turn (e.g., off-board or already revealed)."""
+        if self._current_turn is None:
+            raise ValueError("Cannot record invalid guess: no turn in progress")
+        self._current_turn.invalid_guess_word = word.lower()
+        self._current_turn.invalid_guess_reason = reason
     
     def _check_game_outcome(self, last_result: TurnResult):
         """Check if the game has ended and update outcome."""
@@ -204,25 +222,27 @@ class GameState:
         return (blue_remaining, red_remaining)
     
     def print_status(self):
-        """Print current game status."""
+        """Log current game status."""
         blue_rem, red_rem = self.get_team_scores()
-        
-        print("\n" + "=" * 60)
-        print(f"GAME STATUS - Turn {self._turn_number}")
-        print("=" * 60)
-        print(f"Current Team: {self._current_team.value.upper()}")
-        print(f"Blue Remaining: {blue_rem} | Red Remaining: {red_rem}")
-        print(f"Outcome: {self._game_outcome.value}")
-        print(f"Revealed: {len(self._revealed_words)}/25 words")
-        
+
+        logger.info("")
+        logger.info("=" * 60)
+        logger.info("GAME STATUS - Turn %d", self._turn_number)
+        logger.info("=" * 60)
+        logger.info("Current Team: %s", self._current_team.value.upper())
+        logger.info("Blue Remaining: %d | Red Remaining: %d", blue_rem, red_rem)
+        logger.info("Outcome: %s", self._game_outcome.value)
+        logger.info("Revealed: %d/%d words", len(self._revealed_words), self._board.config.BOARD_SIZE)
+
         if self._current_turn:
-            print(f"\nCurrent Turn: '{self._current_turn.hint_word}' ({self._current_turn.hint_count})")
+            logger.info("")
+            logger.info("Current Turn: '%s' (%d)", self._current_turn.hint_word, self._current_turn.hint_count)
             if self._current_turn.guesses:
-                print("Guesses this turn:")
+                logger.info("Guesses this turn:")
                 for guess in self._current_turn.guesses:
-                    print(f"  - {guess}")
-        
-        print("=" * 60)
+                    logger.info("  - %s", guess)
+
+        logger.info("=" * 60)
     
     def get_snapshot(self) -> dict:
         """Get JSON-serializable snapshot of game state."""
@@ -246,7 +266,9 @@ class GameState:
                             'hit_bomb': g.hit_bomb
                         }
                         for g in turn.guesses
-                    ]
+                    ],
+                    'invalid_guess_word': turn.invalid_guess_word,
+                    'invalid_guess_reason': turn.invalid_guess_reason
                 }
                 for turn in self._turn_history
             ]
@@ -257,4 +279,3 @@ class GameState:
         return (f"GameState(turn={self._turn_number}, team={self._current_team.value}, "
                 f"blue_remaining={blue_rem}, red_remaining={red_rem}, "
                 f"outcome={self._game_outcome.value})")
-

@@ -1,7 +1,7 @@
 # Core dependencies for Codenames AI Benchmark
 
-# BAML - Structured LLM outputs and prompt management
-baml-py>=0.211.0
+# BAML - Structured LLM outputs and prompt management (pinned to generated client version)
+baml-py==0.211.2
 
 # LLM providers (still needed by BAML clients)
 openai>=1.0.0  # Also used for xAI Grok and DeepSeek (OpenAI-compatible APIs)
@@ -10,4 +10,3 @@ google-generativeai>=0.3.0
 
 # Optional: for loading .env files
 python-dotenv>=1.0.0
-

@@ -1,13 +1,18 @@
 """
 Game orchestrator that coordinates 4 agents through a complete Codenames game.
 """
-from typing import Optional, Dict, Any
+import logging
+import time
+import random
+from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 
+logger = logging.getLogger(__name__)
+
 from game import Board, GameState, Team, GameOutcome, CardColor
-from agents import HintGiver, Guesser
-from config import OrchestratorConfig, GameConfig
+from agents import HintGiver, Guesser, HintResponse
+from config import OrchestratorConfig, GameConfig, LLMConfig
 
 
 @dataclass
@@ -104,23 +109,58 @@ class GameRunner:
 
         # Use config for defaults
         self.config = config or OrchestratorConfig()
-        self.game_config = GameConfig()  # Get game config for max_turns default
+        self.game_config = board.config if hasattr(board, "config") else GameConfig()
 
         self.max_turns = max_turns if max_turns is not None else self.game_config.MAX_TURNS
         self.verbose = verbose if verbose is not None else self.config.VERBOSE_DEFAULT
         self.game_id = game_id or f"game_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     def _log(self, message: str):
-        """Print message if verbose mode is on."""
+        """Log message if verbose mode is on."""
         if self.verbose:
-            print(message)
-    
-    def _get_hint_from_agent(self, team: Team) -> tuple:
+            logger.info(message)
+
+    def _is_valid_hint(self, hint_word: str, board_words: List[str]) -> Tuple[bool, str]:
+        """
+        Validate hint against board words per official Codenames rules.
+
+        A hint is invalid if:
+        - It exactly matches a board word
+        - It contains a board word as a substring
+        - It is a substring of a board word
+
+        Args:
+            hint_word: The proposed hint word
+            board_words: List of all words on the board
+
+        Returns:
+            (is_valid, error_message) tuple
+        """
+        hint_lower = hint_word.lower()
+
+        for board_word in board_words:
+            board_lower = board_word.lower()
+
+            # Check exact match
+            if hint_lower == board_lower:
+                return False, f"'{hint_word}' is on the board"
+
+            # Check if hint contains board word
+            if board_lower in hint_lower:
+                return False, f"'{hint_word}' contains board word '{board_word}'"
+
+            # Check if board word contains hint
+            if hint_lower in board_lower:
+                return False, f"Board word '{board_word}' contains '{hint_word}'"
+
+        return True, ""
+
+    def _get_hint_from_agent(self, team: Team) -> Tuple[Optional[HintResponse], Optional[str]]:
         """
         Get hint from team's hint giver.
-        
+
         Returns:
-            (hint_response, error_message)
+            Tuple of (hint_response, error_message). One will be None.
         """
         hint_giver = self.agents[team]['hint_giver']
         
@@ -154,22 +194,33 @@ class GameRunner:
             is_valid, error = hint.validate()
             if not is_valid:
                 return None, f"Invalid hint: {error}"
-            
-            # Check hint word not on board
-            if hint.word.lower() in [w.lower() for w in self.board.all_words]:
-                return None, f"Invalid hint: '{hint.word}' is on the board"
-            
+
+            # Check hint word against board words (exact match and substrings)
+            is_valid, error = self._is_valid_hint(hint.word, self.board.all_words)
+            if not is_valid:
+                return None, f"Invalid hint: {error}"
+
             return hint, None
             
         except Exception as e:
-            return None, f"Hint giver error: {str(e)}"
+            # Check if this is a retryable error
+            error_str = str(e).lower()
+            if any(keyword in error_str for keyword in [
+                '503', 'service unavailable', 'overloaded', 'try again later',
+                'rate limit', 'timeout', 'connection', 'network'
+            ]):
+                # This is a retryable error - let the retry logic handle it
+                raise e
+            else:
+                # This is a non-retryable error
+                return None, f"Hint giver error: {str(e)}"
     
-    def _get_guesses_from_agent(self, team: Team, hint_word: str, hint_count: int) -> tuple:
+    def _get_guesses_from_agent(self, team: Team, hint_word: str, hint_count: int) -> Tuple[Optional[List[str]], Optional[str]]:
         """
         Get guesses from team's guesser.
-        
+
         Returns:
-            (guesses_list, error_message)
+            Tuple of (guesses_list, error_message). One will be None.
         """
         guesser = self.agents[team]['guesser']
         
@@ -188,71 +239,189 @@ class GameRunner:
             return guesses, None
             
         except Exception as e:
-            return None, f"Guesser error: {str(e)}"
+            # Check if this is a retryable error
+            error_str = str(e).lower()
+            if any(keyword in error_str for keyword in [
+                '503', 'service unavailable', 'overloaded', 'try again later',
+                'rate limit', 'timeout', 'connection', 'network'
+            ]):
+                # This is a retryable error - let the retry logic handle it
+                raise e
+            else:
+                # This is a non-retryable error
+                return None, f"Guesser error: {str(e)}"
     
     def _execute_turn(self, team: Team) -> Optional[str]:
         """
-        Execute a complete turn for a team.
-        
+        Execute a complete turn for a team with retry logic.
+
+        If an error occurs, uses exponential backoff and retries.
+        Does not pass the turn on error - retries until successful or max retries exceeded.
+
+        Args:
+            team: The team whose turn it is
+
         Returns:
-            Error message if any, None if successful
+            Error message if max retries exceeded, None if successful
         """
-        self._log(f"\n{'='*60}")
-        self._log(f"TURN {self.game.turn_number + 1}: {team.value.upper()} TEAM")
-        self._log(f"{'='*60}")
+        max_retries = LLMConfig.MAX_RETRIES
+        base_retry_delay = LLMConfig.RETRY_DELAY
         
-        # 1. Get hint from hint giver
-        hint, error = self._get_hint_from_agent(team)
-        if error:
-            return error
-        
-        self._log(f"Hint: '{hint.word}' ({hint.count})")
-        
-        # 2. Start turn with hint
-        try:
-            self.game.start_turn(hint.word, hint.count)
-        except ValueError as e:
-            return f"Failed to start turn: {str(e)}"
-        
-        # 3. Get guesses from guesser
-        guesses, error = self._get_guesses_from_agent(team, hint.word, hint.count)
-        if error:
-            self.game.end_turn()  # Clean up
-            return error
-        
-        if not guesses:
-            self._log("   Team passes (no guesses)")
-            self.game.end_turn()
-            return None
-        
-        self._log(f"Guesses: {guesses}")
-        
-        # 4. Execute guesses
-        for guess_word in guesses:
+        for attempt in range(max_retries + 1):  # +1 for initial attempt
+            if attempt > 0:
+                # Exponential backoff with jitter: 5s, 10s, 20s + random(0-2s)
+                retry_delay = base_retry_delay * (2 ** (attempt - 1)) + random.uniform(0, 2)
+                self._log(f"\nRETRY ATTEMPT {attempt}/{max_retries}")
+                self._log(f"Waiting {retry_delay:.1f} seconds before retry...")
+                time.sleep(retry_delay)
+            
+            self._log(f"\n{'='*60}")
+            self._log(f"TURN {self.game.turn_number + 1}: {team.value.upper()} TEAM")
+            if attempt > 0:
+                self._log(f"(Retry attempt {attempt})")
+            self._log(f"{'='*60}")
+            
+            # 1. Get hint from hint giver
             try:
-                result = self.game.make_guess(guess_word)
-                self._log(f"   → {result}")
-                
-                # Give feedback to guesser
-                guesser = self.agents[team]['guesser']
-                guesser.process_result(guess_word, result.correct, result.color)
-                
-                # Check if should stop
-                if result.hit_bomb:
-                    self._log("   BOMB HIT! Game over.")
-                    break
-                elif not result.correct:
-                    self._log("   ✗ Wrong. Turn ends.")
-                    break
-                    
+                hint, error = self._get_hint_from_agent(team)
+                if error:
+                    if attempt < max_retries:
+                        self._log(f"Hint error: {error}")
+                        next_delay = base_retry_delay * (2 ** attempt) + random.uniform(0, 2)
+                        self._log(f"Will retry in {next_delay:.1f} seconds...")
+                        continue
+                    else:
+                        return f"Hint error after {max_retries} retries: {error}"
+            except Exception as e:
+                if attempt < max_retries:
+                    self._log(f"Hint giver exception: {str(e)}")
+                    next_delay = base_retry_delay * (2 ** attempt)
+                    self._log(f"Will retry in {next_delay} seconds...")
+                    continue
+                else:
+                    return f"Hint giver exception after {max_retries} retries: {str(e)}"
+
+            # Enforce configured hint count bounds
+            min_hint = self.game_config.MIN_HINT_COUNT
+            max_hint = self.game_config.MAX_HINT_COUNT
+            if hint.count < min_hint or hint.count > max_hint:
+                invalid_msg = (f"Hint count {hint.count} outside allowed range "
+                               f"[{min_hint}, {max_hint}]")
+                if attempt < max_retries:
+                    self._log(f"Hint error: {invalid_msg}")
+                    next_delay = base_retry_delay * (2 ** attempt) + random.uniform(0, 2)
+                    self._log(f"Will retry in {next_delay:.1f} seconds...")
+                    continue
+                return f"Hint error after {max_retries} retries: {invalid_msg}"
+
+            self._log(f"Hint: '{hint.word}' ({hint.count})")
+
+            # 2. Start turn with hint
+            try:
+                self.game.start_turn(hint.word, hint.count)
             except ValueError as e:
-                self._log(f"   ✗ Invalid guess '{guess_word}': {e}")
-                continue
-        
-        # 5. End turn
-        self.game.end_turn()
-        return None
-    
+                if attempt < max_retries:
+                    self._log(f"Failed to start turn: {str(e)}")
+                    next_delay = base_retry_delay * (2 ** attempt)
+                    self._log(f"Will retry in {next_delay} seconds...")
+                    continue
+                else:
+                    return f"Failed to start turn after {max_retries} retries: {str(e)}"
+            
+            # 3. Get guesses from guesser
+            try:
+                guesses, error = self._get_guesses_from_agent(team, hint.word, hint.count)
+                if error:
+                    self.game.end_turn()  # Clean up
+                    if attempt < max_retries:
+                        self._log(f"Guesser error: {error}")
+                        next_delay = base_retry_delay * (2 ** attempt) + random.uniform(0, 2)
+                        self._log(f"Will retry in {next_delay:.1f} seconds...")
+                        continue
+                    else:
+                        return f"Guesser error after {max_retries} retries: {error}"
+            except Exception as e:
+                self.game.end_turn()  # Clean up
+                if attempt < max_retries:
+                    self._log(f"Guesser exception: {str(e)}")
+                    next_delay = base_retry_delay * (2 ** attempt)
+                    self._log(f"Will retry in {next_delay} seconds...")
+                    continue
+                else:
+                    return f"Guesser exception after {max_retries} retries: {str(e)}"
+            
+            if not guesses:
+                self._log("   Team passes (no guesses)")
+                self.game.end_turn()
+                return None
+
+            # Enforce guess limits and basic validation
+            max_guesses = self.game_config.MAX_GUESSES_PER_TURN
+            if max_guesses is None:
+                max_guesses = hint.count + 1
+
+            cleaned_guesses = []
+            seen = set()
+            for guess in guesses:
+                if not isinstance(guess, str):
+                    self._log(f"   Skipping non-string guess: {guess}")
+                    continue
+                guess_lower = guess.lower()
+                if guess_lower in seen:
+                    continue
+                seen.add(guess_lower)
+                cleaned_guesses.append(guess)
+                if len(cleaned_guesses) >= max_guesses:
+                    break
+
+            guesses = cleaned_guesses
+            if not guesses:
+                self._log("   Team passes after validation (no valid guesses)")
+                self.game.end_turn()
+                return None
+
+            self._log(f"Guesses: {guesses}")
+
+            # 4. Execute guesses
+            board_words_lower = {w.lower() for w in self.board.all_words}
+            revealed_lower = {w.lower() for w in self.game.revealed_words}
+            for guess_word in guesses:
+                try:
+                    guess_lower = guess_word.lower()
+                    if guess_lower not in board_words_lower:
+                        self._log(f"   Invalid guess '{guess_word}': word not on board. Turn ends.")
+                        self.game.record_invalid_guess(guess_word, "not_on_board")
+                        break
+                    if guess_lower in revealed_lower:
+                        self._log(f"   Invalid guess '{guess_word}': word already revealed. Turn ends.")
+                        self.game.record_invalid_guess(guess_word, "already_revealed")
+                        break
+
+                    result = self.game.make_guess(guess_word)
+                    self._log(f"   → {result}")
+                    revealed_lower.add(guess_lower)
+
+                    # Give feedback to guesser
+                    guesser = self.agents[team]['guesser']
+                    guesser.process_result(guess_word, result.correct, result.color)
+
+                    # Check if should stop
+                    if result.hit_bomb:
+                        self._log("   BOMB HIT! Game over.")
+                        break
+                    elif not result.correct:
+                        self._log("   Wrong. Turn ends.")
+                        break
+
+                except ValueError as e:
+                    self._log(f"   Invalid guess '{guess_word}': {e}")
+                    self.game.record_invalid_guess(guess_word, "invalid_guess")
+                    break
+
+            # 5. End turn
+            self.game.end_turn()
+            return None  # Success!
+
     def run(self) -> GameResult:
         """
         Run the complete game until completion.
@@ -260,7 +429,7 @@ class GameRunner:
         Returns:
             GameResult with complete game data
         """
-        self._log(f"\n🎮 STARTING GAME: {self.game_id}")
+        self._log(f"\nSTARTING GAME: {self.game_id}")
         self._log(f"{'='*60}")
         self._log(f"Blue: {self.agents[Team.BLUE]['hint_giver'].__class__.__name__} + "
                   f"{self.agents[Team.BLUE]['guesser'].__class__.__name__}")
@@ -315,4 +484,3 @@ class GameRunner:
         self._log(f"Final scores - Blue: {result.final_scores[0]}, Red: {result.final_scores[1]}")
         
         return result
-
