@@ -16,7 +16,7 @@ class HintGiver(ABC):
         my_words: List[str],          # Your team's unrevealed words
         opponent_words: List[str],     # Opponent's unrevealed words
         neutral_words: List[str],      # Neutral unrevealed words
-        bomb_word: str,                # The bomb (if not revealed)
+        bomb_words: List[str],         # Bomb words (if not revealed)
         revealed_words: List[str],     # Already guessed words
         board_words: List[str]         # All words on board
     ) -> HintResponse:                 # (word, count)

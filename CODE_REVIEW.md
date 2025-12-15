@@ -6,39 +6,7 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Critical Issues
 
-### 1. Fictional/Non-Existent Models Referenced
-**Location:** `baml_src/clients.baml`, `agents/llm/baml_agents.py`, `config.py`
-
-**Problem:** The codebase references many models that do not exist as of December 2024:
-- `GPT-5`, `GPT-5-mini`, `GPT-5-nano`, `GPT-5-pro`, `GPT-5-chat` - These models do not exist
-- `GPT-4.1`, `GPT-4.1-mini`, `GPT-4.1-nano` - These models do not exist
-- `o4-mini` - This model does not exist
-- `claude-sonnet-4-5-20250929`, `claude-haiku-4-5-20251001` - Future dates (Sep/Oct 2025)
-- `claude-opus-4-1-20250805`, `claude-sonnet-4-20250514`, `claude-opus-4-20250514` - Future dates
-- `claude-3-7-sonnet-20250219` - Future date (Feb 2025)
-- `grok-4-0709`, `grok-4-fast-reasoning` - These models do not exist
-- `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite` - These models do not exist
-
-**Impact:** Any benchmark using these models will fail with API errors. The default benchmark models in `model_config.py` include `BAMLModel.GPT5` which doesn't exist.
-
----
-
-### 2. Bomb Word Handling Bug
-**Location:** `orchestrator/game_runner.py:177-181`
-
-```python
-bomb_words = [
-    w for w in self.board.get_words_by_color(CardColor.BOMB)
-    if w not in self.game.revealed_words
-]
-bomb_word = bomb_words[0] if bomb_words else ""
-```
-
-**Problem:** The hint giver receives an empty string for the bomb word if it's already been revealed (game should be over by then), but this edge case isn't properly handled. More importantly, the code assumes exactly one bomb word, but `BOMB_COUNT` in config could be changed to multiple bombs.
-
----
-
-### 3. Missing Dependencies in requirements.txt
+### 1. Missing Dependencies in requirements.txt
 **Location:** `requirements.txt`
 
 **Problem:** The `analyze_benchmark_results.py` file imports:
@@ -53,7 +21,7 @@ None of these are listed in `requirements.txt`, so the analysis tool will fail t
 
 ## High Severity Issues
 
-### 4. Division by Zero in Benchmark Analysis
+### 2. Division by Zero in Benchmark Analysis
 **Location:** `analyze_benchmark_results.py:113-116`
 
 ```python
@@ -67,7 +35,7 @@ None of these are listed in `requirements.txt`, so the analysis tool will fail t
 
 ---
 
-### 5. Potential Division by Zero in Quick Benchmark
+### 3. Potential Division by Zero in Quick Benchmark
 **Location:** `quick_benchmark.py:477`
 
 ```python
@@ -78,7 +46,7 @@ self._log(f"Average time per game: {total_time/result.total_games:.1f} seconds")
 
 ---
 
-### 6. Inconsistent Model-to-API-Key Mapping
+### 4. Inconsistent Model-to-API-Key Mapping
 **Location:** `demo_simple_game.py:136-137`
 
 ```python
@@ -90,7 +58,7 @@ BAMLModel.DEEPSEEK_REASONER: "DEEPSEEK_API_KEY",
 
 ---
 
-### 7. Race Condition Risk in ClientRegistry
+### 5. Race Condition Risk in ClientRegistry
 **Location:** `agents/llm/baml_agents.py:149-150, 213-214`
 
 ```python
@@ -102,7 +70,7 @@ self._registry.set_primary(model.value)
 
 ---
 
-### 8. Hardcoded Retry Parameters
+### 6. Hardcoded Retry Parameters
 **Location:** `orchestrator/game_runner.py:267-268`
 
 ```python
@@ -116,7 +84,7 @@ base_retry_delay = LLMConfig.RETRY_DELAY
 
 ## Medium Severity Issues
 
-### 9. Incomplete Error Handling for Guesser Results
+### 7. Incomplete Error Handling for Guesser Results
 **Location:** `orchestrator/game_runner.py:400`
 
 ```python
@@ -127,7 +95,7 @@ result = self.game.make_guess(guess_word)
 
 ---
 
-### 10. Memory Leak in Guesser History
+### 8. Memory Leak in Guesser History
 **Location:** `agents/llm/baml_agents.py:211, 252-256`
 
 ```python
@@ -141,7 +109,7 @@ def process_result(self, guessed_word: str, was_correct: bool, color: CardColor)
 
 ---
 
-### 11. Inconsistent Winner Value in Analysis
+### 9. Inconsistent Winner Value in Analysis
 **Location:** `analyze_benchmark_results.py:73-74`
 
 ```python
@@ -153,7 +121,7 @@ red_won = game.get('winner') == 'RED'
 
 ---
 
-### 12. Unreachable Code in analyze_model_performance
+### 10. Unreachable Code in analyze_model_performance
 **Location:** `analyze_benchmark_results.py:109`
 
 ```python
@@ -164,7 +132,7 @@ if stats['total_games'] > 0:
 
 ---
 
-### 13. Missing Validation for Custom Board Sizes
+### 11. Missing Validation for Custom Board Sizes
 **Location:** `config.py:54-57`
 
 ```python
@@ -178,7 +146,7 @@ if board_size % 2 == 0:
 
 ---
 
-### 14. Inconsistent Case Handling
+### 12. Inconsistent Case Handling
 **Location:** Multiple files
 
 **Problem:** Words are normalized to lowercase in `Board.__init__` but some comparisons/lookups don't use `.lower()`:
@@ -187,7 +155,7 @@ if board_size % 2 == 0:
 
 ---
 
-### 15. Silent Failure on Invalid Guesses
+### 13. Silent Failure on Invalid Guesses
 **Location:** `orchestrator/game_runner.py:365-376`
 
 ```python
@@ -203,14 +171,14 @@ for guess in guesses:
 
 ## Low Severity Issues
 
-### 16. Duplicate Model Display Name Mappings
+### 14. Duplicate Model Display Name Mappings
 **Location:** `demo_simple_game.py:151-224` and `model_config.py:108-117`
 
 **Problem:** `get_model_display_name` is defined in both files with different implementations. The one in `demo_simple_game.py` has many more mappings than `model_config.py`.
 
 ---
 
-### 17. Unused Import
+### 15. Unused Import
 **Location:** `demo_simple_game.py:47`
 
 ```python
@@ -221,7 +189,7 @@ from game import Board, Team, CardColor
 
 ---
 
-### 18. Magic Numbers
+### 16. Magic Numbers
 **Location:** Multiple files
 
 **Problem:** Several magic numbers without explanation:
@@ -231,14 +199,14 @@ from game import Board, Team, CardColor
 
 ---
 
-### 19. Inconsistent Logging
+### 17. Inconsistent Logging
 **Location:** `game/state.py`, `orchestrator/game_runner.py`
 
 **Problem:** `GameState.print_status()` uses `logger.info()` while `GameRunner._log()` uses `print()` when verbose. This inconsistency makes log management difficult.
 
 ---
 
-### 20. Poor Error Messages
+### 18. Poor Error Messages
 **Location:** `agents/base.py:27-28`
 
 ```python
@@ -250,7 +218,7 @@ if not isinstance(self.count, int) or self.count < 0:
 
 ---
 
-### 21. Missing Type Hints
+### 19. Missing Type Hints
 **Location:** `utils/generate_words.py`
 
 **Problem:** Most functions lack return type hints:
@@ -261,7 +229,7 @@ def generate_word_list(num_words=None, csv_path=None):  # Should be -> List[str]
 
 ---
 
-### 22. Orphaned Code Reference
+### 20. Orphaned Code Reference
 **Location:** `demo_simple_game.py:488`
 
 ```python
@@ -272,7 +240,7 @@ print("To try other demos, check out: demo_llm_game.py")
 
 ---
 
-### 23. Incomplete Dataclass Field
+### 21. Incomplete Dataclass Field
 **Location:** `orchestrator/game_runner.py:31`
 
 ```python
@@ -284,7 +252,7 @@ timestamp: datetime = field(default_factory=datetime.now)
 
 ---
 
-### 24. Potential Confusion in Bomb Handling
+### 22. Potential Confusion in Bomb Handling
 **Location:** `game/state.py:192-198`
 
 ```python
@@ -299,7 +267,7 @@ if last_result.hit_bomb:
 
 ---
 
-### 25. Empty Turn Handling Ambiguity
+### 23. Empty Turn Handling Ambiguity
 **Location:** `orchestrator/game_runner.py:352-356`
 
 ```python
@@ -315,14 +283,14 @@ if not guesses:
 
 ## Code Quality Issues
 
-### 26. Long Methods
+### 24. Long Methods
 **Location:** `orchestrator/game_runner.py:254-423`
 
 **Problem:** `_execute_turn` is 170 lines long with deeply nested logic. Should be refactored into smaller, focused methods.
 
 ---
 
-### 27. Configuration Coupling
+### 25. Configuration Coupling
 **Location:** `config.py:301-310`
 
 ```python
@@ -334,7 +302,7 @@ BLUE_WORDS = default_config.game.BLUE_WORDS
 
 ---
 
-### 28. Inconsistent Naming Conventions
+### 26. Inconsistent Naming Conventions
 **Location:** Multiple files
 
 **Problem:** Mixed naming styles:
@@ -345,7 +313,7 @@ BLUE_WORDS = default_config.game.BLUE_WORDS
 
 ---
 
-### 29. Missing docstrings
+### 27. Missing docstrings
 **Location:** `quick_benchmark.py:345`
 
 ```python
@@ -357,7 +325,7 @@ def run(self) -> QuickBenchmarkResult:
 
 ---
 
-### 30. Dead Code Path in Team Combination Logic
+### 28. Dead Code Path in Team Combination Logic
 **Location:** `quick_benchmark.py:363-376`
 
 ```python
@@ -379,14 +347,14 @@ for blue_hint in BENCHMARK_MODELS:
 
 ## Security Considerations
 
-### 31. API Key Exposure Risk
+### 29. API Key Exposure Risk
 **Location:** `config.py:107-197`
 
 **Problem:** Model costs dictionary includes pricing for models that reference API keys. While keys aren't stored here, the configuration pattern could lead developers to add sensitive data.
 
 ---
 
-### 32. No Input Sanitization for Hint Words
+### 30. No Input Sanitization for Hint Words
 **Location:** `orchestrator/game_runner.py:123-156`
 
 **Problem:** Hint words from LLMs are validated against board words but not sanitized for logging. If an LLM returns malicious content, it could appear in logs.
@@ -395,7 +363,7 @@ for blue_hint in BENCHMARK_MODELS:
 
 ## Documentation Issues
 
-### 33. Outdated Comments
+### 31. Outdated Comments
 **Location:** `baml_src/clients.baml:8, 54, 271, etc.`
 
 ```
@@ -408,7 +376,7 @@ for blue_hint in BENCHMARK_MODELS:
 
 ---
 
-### 34. Misleading Variable Name
+### 32. Misleading Variable Name
 **Location:** `quick_benchmark.py:41`
 
 ```python
@@ -423,20 +391,19 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 
 | Category | Count |
 |----------|-------|
-| Critical | 2 |
+| Critical | 1 |
 | High Severity | 5 |
 | Medium Severity | 7 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **33** |
+| **Total** | **31** |
 
 ### Priority Recommendations
 
-1. **Immediate:** Remove or mark fictional models as unavailable. Update `get_benchmark_models()` to only return models that actually exist.
-2. **Immediate:** Add missing dependencies to `requirements.txt`.
-3. **High:** Fix division by zero bugs in benchmark analysis.
-4. **High:** Fix the winner value comparison case mismatch in analysis.
-5. **Medium:** Refactor long methods and add comprehensive error handling.
-6. **Low:** Clean up duplicate code and improve documentation.
+1. **Immediate:** Add missing dependencies to `requirements.txt`.
+2. **High:** Fix division by zero bugs in benchmark analysis.
+3. **High:** Fix the winner value comparison case mismatch in analysis.
+4. **Medium:** Refactor long methods and add comprehensive error handling.
+5. **Low:** Clean up duplicate code and improve documentation.

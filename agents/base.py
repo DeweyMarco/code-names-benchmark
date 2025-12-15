@@ -57,24 +57,24 @@ class HintGiver(ABC):
         my_words: List[str],
         opponent_words: List[str],
         neutral_words: List[str],
-        bomb_word: str,
+        bomb_words: List[str],
         revealed_words: List[str],
         board_words: List[str]
     ) -> HintResponse:
         """
         Generate a hint for the team.
-        
+
         Args:
             my_words: List of unrevealed words belonging to this agent's team
             opponent_words: List of unrevealed opponent words
             neutral_words: List of unrevealed neutral words
-            bomb_word: The bomb word (if not revealed)
+            bomb_words: List of bomb words (if not revealed)
             revealed_words: List of already revealed words
             board_words: All words on the board (for reference)
-        
+
         Returns:
             HintResponse with hint word and count
-        
+
         Notes:
             - Hint word must be a single word (no spaces)
             - Hint word should not be any word currently on the board

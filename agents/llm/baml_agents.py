@@ -154,7 +154,7 @@ class BAMLHintGiver(HintGiver):
         my_words: List[str],
         opponent_words: List[str],
         neutral_words: List[str],
-        bomb_word: str,
+        bomb_words: List[str],
         revealed_words: List[str],
         board_words: List[str]
     ) -> HintResponse:
@@ -174,7 +174,7 @@ class BAMLHintGiver(HintGiver):
                 my_words=my_words,
                 opponent_words=opponent_words,
                 neutral_words=neutral_words,
-                bomb_word=bomb_word,
+                bomb_words=bomb_words,
                 revealed_words=revealed_words,
                 baml_options={"client_registry": self._registry}
             )

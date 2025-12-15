@@ -178,14 +178,13 @@ class GameRunner:
             w for w in self.board.get_words_by_color(CardColor.BOMB)
             if w not in self.game.revealed_words
         ]
-        bomb_word = bomb_words[0] if bomb_words else ""
-        
+
         try:
             hint = hint_giver.give_hint(
                 my_words=my_words,
                 opponent_words=opponent_words,
                 neutral_words=neutral_words,
-                bomb_word=bomb_word,
+                bomb_words=bomb_words,
                 revealed_words=list(self.game.revealed_words),
                 board_words=self.board.all_words
             )

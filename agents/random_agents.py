@@ -16,7 +16,7 @@ class RandomHintGiver(HintGiver):
         my_words: List[str],
         opponent_words: List[str],
         neutral_words: List[str],
-        bomb_word: str,
+        bomb_words: List[str],
         revealed_words: List[str],
         board_words: List[str]
     ) -> HintResponse:

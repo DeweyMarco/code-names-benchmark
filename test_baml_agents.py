@@ -139,7 +139,7 @@ def test_model(client_name: str, model_name: str, api_key_env: str, base_url: st
             my_words=["dog", "cat", "bird"],
             opponent_words=["car", "tree", "house"],
             neutral_words=["book", "phone"],
-            bomb_word="explosion",
+            bomb_words=["explosion"],
             revealed_words=[],
             baml_options={"client_registry": cr}
         )

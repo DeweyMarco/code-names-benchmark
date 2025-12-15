@@ -25,7 +25,7 @@ function GiveHint(
   my_words: string[] @description("Your team's unrevealed words that need to be guessed"),
   opponent_words: string[] @description("Opponent's unrevealed words to avoid"),
   neutral_words: string[] @description("Neutral unrevealed words to avoid"),
-  bomb_word: string @description("The bomb word - NEVER hint at this or you lose!"),
+  bomb_words: string[] @description("The bomb word(s) - NEVER hint at these or you lose!"),
   revealed_words: string[] @description("Already revealed words (for context)")
 ) -> HintResponse {
   client GPT4oMini  // Default client - can be overridden at runtime
@@ -44,8 +44,8 @@ function GiveHint(
     NEUTRAL WORDS (avoid these):
     {{ neutral_words | join(', ') }}
 
-    BOMB WORD (NEVER hint at this):
-    {{ bomb_word }}
+    BOMB WORD(S) (NEVER hint at these):
+    {{ bomb_words | join(', ') }}
 
     {% if revealed_words | length > 0 %}
     ALREADY REVEALED:
@@ -56,14 +56,14 @@ function GiveHint(
     1. Give a ONE-WORD hint (no spaces, no words from the board)
     2. Give a NUMBER indicating how many of your words relate to this hint
     3. Your hint should connect multiple of your words if possible
-    4. Avoid hints that could lead to opponent words, neutral words, or the BOMB
+    4. Avoid hints that could lead to opponent words, neutral words, or the BOMB(S)
     5. Be strategic - think about semantic associations, categories, and relationships
 
     STRATEGY TIPS:
     - Look for semantic clusters (e.g., "animal" for dog, cat, mouse)
     - Consider word relationships (e.g., "royalty" for king, queen, crown)
     - Balance safety vs. aggressiveness based on game state
-    - Avoid risky hints that could lead to the bomb
+    - Avoid risky hints that could lead to the bomb(s)
 
     {{ ctx.output_format }}
   "#
@@ -89,13 +89,7 @@ function MakeGuesses(
     This means your spymaster wants you to guess {{ hint_count }} word(s) related to "{{ hint_word }}".
 
     WORDS ON THE BOARD (unrevealed):
-    {% set unrevealed = [] %}
-    {% for word in board_words %}
-      {% if word not in revealed_words %}
-        {% set unrevealed = unrevealed + [word] %}
-      {% endif %}
-    {% endfor %}
-    {{ unrevealed | join(', ') }}
+    {% for word in board_words if word not in revealed_words %}{{ word }}{% if not loop.last %}, {% endif %}{% endfor %}
 
     {% if revealed_words | length > 0 %}
     ALREADY REVEALED (don't guess these):
