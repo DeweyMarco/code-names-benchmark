@@ -65,14 +65,17 @@ class BenchmarkAnalyzer:
         for game in self.games:
             if 'snapshot' not in game:
                 continue
-                
+
             snapshot = game['snapshot']
             turn_history = snapshot.get('turn_history', [])
-            
+
             # Determine which team won (winner value is lowercase from Team enum)
             blue_won = game.get('winner') == 'blue'
             red_won = game.get('winner') == 'red'
-            
+
+            # Track game participation for each role (to avoid double counting)
+            roles_in_game = set()
+
             # Analyze each turn
             for turn in turn_history:
                 team = turn.get('team', '').lower()
@@ -83,25 +86,33 @@ class BenchmarkAnalyzer:
                 # Count hints and their success
                 if hint_word and hint_count > 0:
                     model_key = f"{team}_hint_giver"  # This is simplified
+                    roles_in_game.add((model_key, team))
                     model_stats[model_key]['hints_given'] += 1
-                    
+
                     # Check if hint was successful (led to at least one correct guess)
                     correct_guesses = sum(1 for g in guesses if g.get('correct', False))
                     if correct_guesses > 0:
                         model_stats[model_key]['successful_hints'] += 1
-                
+
                 # Count guesses
                 for guess in guesses:
                     model_key = f"{team}_guesser"  # This is simplified
+                    roles_in_game.add((model_key, team))
                     model_stats[model_key]['guesses_made'] += 1
-                    
+
                     if guess.get('correct', False):
                         model_stats[model_key]['correct_guesses'] += 1
                     else:
                         model_stats[model_key]['wrong_guesses'] += 1
-                        
+
                         if guess.get('color') == 'BOMB':
                             model_stats[model_key]['bomb_hits'] += 1
+
+            # Update game counts for each role that participated in this game
+            for model_key, team in roles_in_game:
+                model_stats[model_key]['total_games'] += 1
+                if (team == 'blue' and blue_won) or (team == 'red' and red_won):
+                    model_stats[model_key]['total_wins'] += 1
         
         # Create analysis DataFrame
         analysis_data = []
