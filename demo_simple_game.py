@@ -47,6 +47,7 @@ from utils import generate_word_list
 from game import Board, Team, CardColor
 from agents.llm import BAMLHintGiver, BAMLGuesser, BAMLModel
 from orchestrator import GameRunner
+from model_config import get_model_display_name
 
 # Load environment variables
 load_dotenv()
@@ -146,83 +147,6 @@ MODEL_TO_API_KEY = {
     # Meta Llama (via Together AI)
     BAMLModel.LLAMA: "TOGETHER_API_KEY",
 }
-
-
-def get_model_display_name(model: BAMLModel) -> str:
-    """Get a user-friendly display name for a model."""
-    name_map = {
-        # OpenAI - GPT-5 Series
-        BAMLModel.GPT5: "GPT-5",
-        BAMLModel.GPT5_MINI: "GPT-5 Mini",
-        BAMLModel.GPT5_NANO: "GPT-5 Nano",
-        BAMLModel.GPT5_CHAT: "GPT-5 Chat",
-        BAMLModel.GPT5_PRO: "GPT-5 Pro",
-        # OpenAI - GPT-4.1 Series
-        BAMLModel.GPT41: "GPT-4.1",
-        BAMLModel.GPT41_MINI: "GPT-4.1 Mini",
-        BAMLModel.GPT41_NANO: "GPT-4.1 Nano",
-        # OpenAI - Reasoning Models (o-series)
-        BAMLModel.O4_MINI: "o4-mini",
-        BAMLModel.O3_MINI: "o3-mini",
-        BAMLModel.O3: "o3",
-        BAMLModel.O1: "o1",
-        BAMLModel.O1_MINI: "o1-mini",
-        BAMLModel.O1_PREVIEW: "o1-preview",
-        # OpenAI - GPT-4o Series
-        BAMLModel.GPT4O: "GPT-4o",
-        BAMLModel.GPT4O_MINI: "GPT-4o Mini",
-        BAMLModel.GPT4O_20240806: "GPT-4o (2024-08-06)",
-        BAMLModel.GPT4O_MINI_20240718: "GPT-4o Mini (2024-07-18)",
-        # OpenAI - GPT-4 Turbo Series
-        BAMLModel.GPT4_TURBO: "GPT-4 Turbo",
-        BAMLModel.GPT4_TURBO_PREVIEW: "GPT-4 Turbo Preview",
-        BAMLModel.GPT4_0125_PREVIEW: "GPT-4 (0125-preview)",
-        BAMLModel.GPT4_1106_PREVIEW: "GPT-4 (1106-preview)",
-        # OpenAI - GPT-4 Base Series
-        BAMLModel.GPT4: "GPT-4",
-        BAMLModel.GPT4_32K: "GPT-4 32K",
-        BAMLModel.GPT4_0613: "GPT-4 (0613)",
-        # OpenAI - GPT-3.5 Series
-        BAMLModel.GPT35_TURBO: "GPT-3.5 Turbo",
-        BAMLModel.GPT35_TURBO_16K: "GPT-3.5 Turbo 16K",
-        BAMLModel.GPT35_TURBO_INSTRUCT: "GPT-3.5 Turbo Instruct",
-        # Anthropic - Claude 4.5 Series
-        BAMLModel.CLAUDE_SONNET_45: "Claude Sonnet 4.5",
-        BAMLModel.CLAUDE_HAIKU_45: "Claude Haiku 4.5",
-        # Anthropic - Claude 4.1 Series
-        BAMLModel.CLAUDE_OPUS_41: "Claude Opus 4.1",
-        # Anthropic - Claude 4 Series
-        BAMLModel.CLAUDE_SONNET_4: "Claude Sonnet 4",
-        BAMLModel.CLAUDE_OPUS_4: "Claude Opus 4",
-        # Anthropic - Claude 3.7 Series
-        BAMLModel.CLAUDE_SONNET_37: "Claude Sonnet 3.7",
-        # Anthropic - Claude 3.5 Series
-        BAMLModel.CLAUDE_HAIKU_35: "Claude Haiku 3.5",
-        # Anthropic - Claude 3 Series
-        BAMLModel.CLAUDE_HAIKU_3: "Claude Haiku 3",
-        # Google - Gemini 2.5 Series
-        BAMLModel.GEMINI_25_PRO: "Gemini 2.5 Pro",
-        BAMLModel.GEMINI_25_FLASH: "Gemini 2.5 Flash",
-        BAMLModel.GEMINI_25_FLASH_LITE: "Gemini 2.5 Flash Lite",
-        # Google - Gemini 2.0 Series
-        BAMLModel.GEMINI_20_FLASH: "Gemini 2.0 Flash",
-        BAMLModel.GEMINI_20_FLASH_LITE: "Gemini 2.0 Flash Lite",
-        # DeepSeek V3.2-Exp
-        BAMLModel.DEEPSEEK_CHAT: "DeepSeek Chat",
-        BAMLModel.DEEPSEEK_REASONER: "DeepSeek Reasoner",
-        # xAI - Grok 4 Series
-        BAMLModel.GROK4: "Grok 4",
-        BAMLModel.GROK4_FAST_REASONING: "Grok 4 Fast Reasoning",
-        BAMLModel.GROK4_FAST_NON_REASONING: "Grok 4 Fast Non-Reasoning",
-        # xAI - Grok 3 Series
-        BAMLModel.GROK3: "Grok 3",
-        BAMLModel.GROK3_FAST: "Grok 3 Fast",
-        BAMLModel.GROK3_MINI: "Grok 3 Mini",
-        BAMLModel.GROK3_MINI_FAST: "Grok 3 Mini Fast",
-        # Meta Llama (via Together AI)
-        BAMLModel.LLAMA: "Llama 3 70B",
-    }
-    return name_map.get(model, model.value)
 
 
 def check_api_keys() -> dict:

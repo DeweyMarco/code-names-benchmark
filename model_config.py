@@ -109,9 +109,21 @@ def get_model_display_name(model: BAMLModel) -> str:
         # OpenAI GPT-4o Series
         BAMLModel.GPT4O: "GPT-4o",
         BAMLModel.GPT4O_MINI: "GPT-4o Mini",
+        BAMLModel.GPT4O_20240806: "GPT-4o (2024-08-06)",
+        BAMLModel.GPT4O_MINI_20240718: "GPT-4o Mini (2024-07-18)",
+        # OpenAI GPT-4 Turbo Series
         BAMLModel.GPT4_TURBO: "GPT-4 Turbo",
+        BAMLModel.GPT4_TURBO_PREVIEW: "GPT-4 Turbo Preview",
+        BAMLModel.GPT4_0125_PREVIEW: "GPT-4 (0125-preview)",
+        BAMLModel.GPT4_1106_PREVIEW: "GPT-4 (1106-preview)",
+        # OpenAI GPT-4 Base Series
         BAMLModel.GPT4: "GPT-4",
+        BAMLModel.GPT4_32K: "GPT-4 32K",
+        BAMLModel.GPT4_0613: "GPT-4 (0613)",
+        # OpenAI GPT-3.5 Series
         BAMLModel.GPT35_TURBO: "GPT-3.5 Turbo",
+        BAMLModel.GPT35_TURBO_16K: "GPT-3.5 Turbo 16K",
+        BAMLModel.GPT35_TURBO_INSTRUCT: "GPT-3.5 Turbo Instruct",
         # Anthropic Claude 4.5 Series
         BAMLModel.CLAUDE_SONNET_45: "Claude Sonnet 4.5",
         BAMLModel.CLAUDE_HAIKU_45: "Claude Haiku 4.5",
@@ -119,7 +131,7 @@ def get_model_display_name(model: BAMLModel) -> str:
         BAMLModel.CLAUDE_SONNET_4: "Claude Sonnet 4",
         BAMLModel.CLAUDE_OPUS_4: "Claude Opus 4",
         BAMLModel.CLAUDE_SONNET_37: "Claude Sonnet 3.7",
-        BAMLModel.CLAUDE_HAIKU_35: "Claude 3.5 Haiku",
+        BAMLModel.CLAUDE_HAIKU_35: "Claude Haiku 3.5",
         BAMLModel.CLAUDE_HAIKU_3: "Claude 3 Haiku",
         # Google Gemini Series
         BAMLModel.GEMINI_25_PRO: "Gemini 2.5 Pro",
