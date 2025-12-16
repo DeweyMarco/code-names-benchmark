@@ -5,7 +5,7 @@
 // OPENAI CLIENTS
 // ============================================================================
 
-// GPT-5 Series (Latest - August 2025)
+// GPT-5 Series (speculative/future models - may not be available)
 client<llm> GPT5 {
   provider openai
   options {
@@ -51,7 +51,7 @@ client<llm> GPT5Pro {
   }
 }
 
-// GPT-4.1 Series (April 2025)
+// GPT-4.1 Series (speculative/future models - may not be available)
 client<llm> GPT41 {
   provider openai
   options {
@@ -268,7 +268,7 @@ client<llm> GPT35TurboInstruct {
 // ANTHROPIC CLIENTS (CLAUDE)
 // ============================================================================
 
-// Claude 4.5 Series (Latest - October 2025)
+// Claude 4.5 Series (speculative/future models - may not be available)
 client<llm> ClaudeSonnet45 {
   provider anthropic
   options {
@@ -300,7 +300,7 @@ client<llm> ClaudeOpus41 {
   }
 }
 
-// Claude 4 Series (Legacy - May 2025)
+// Claude 4 Series (speculative/future models - may not be available)
 client<llm> ClaudeSonnet4 {
   provider anthropic
   options {
@@ -321,7 +321,7 @@ client<llm> ClaudeOpus4 {
   }
 }
 
-// Claude 3.7 Series (Legacy - February 2025)
+// Claude 3.7 Series (speculative/future models - may not be available)
 client<llm> ClaudeSonnet37 {
   provider anthropic
   options {
@@ -358,7 +358,7 @@ client<llm> ClaudeHaiku3 {
 // GOOGLE CLIENTS (GEMINI)
 // ============================================================================
 
-// Gemini 2.5 Series (Latest - January 2025)
+// Gemini 2.5 Series (speculative/future models - may not be available)
 client<llm> Gemini25Pro {
   provider google-ai
   options {

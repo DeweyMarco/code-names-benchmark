@@ -123,6 +123,29 @@ class GameRunner:
         if self.verbose:
             logger.info(message)
 
+    @staticmethod
+    def _sanitize_for_log(text: str, max_length: int = 100) -> str:
+        """
+        Sanitize text for safe logging.
+
+        Removes control characters and limits length to prevent log injection
+        or flooding from potentially malicious LLM outputs.
+
+        Args:
+            text: The text to sanitize
+            max_length: Maximum allowed length (default 100)
+
+        Returns:
+            Sanitized text safe for logging
+        """
+        if not isinstance(text, str):
+            text = str(text)
+        # Remove control characters (except space) and limit length
+        sanitized = ''.join(c if c.isprintable() else '?' for c in text)
+        if len(sanitized) > max_length:
+            sanitized = sanitized[:max_length] + "..."
+        return sanitized
+
     def _is_valid_hint(self, hint_word: str, board_words: List[str]) -> Tuple[bool, str]:
         """
         Validate hint against board words per official Codenames rules.
@@ -217,6 +240,86 @@ class GameRunner:
                 # This is a non-retryable error
                 return None, f"Hint giver error: {str(e)}"
     
+    def _clean_guesses(self, guesses: List[str], max_guesses: int) -> List[str]:
+        """
+        Validate and clean a list of guesses.
+
+        Removes non-strings, duplicates, and enforces max guess limit.
+
+        Args:
+            guesses: Raw list of guesses from the guesser
+            max_guesses: Maximum number of guesses allowed
+
+        Returns:
+            Cleaned list of valid guesses
+        """
+        cleaned_guesses = []
+        seen = set()
+        for guess in guesses:
+            if not isinstance(guess, str):
+                self._log(f"   Skipping non-string guess: {self._sanitize_for_log(str(guess))}")
+                self.game.record_invalid_guess(str(guess), "non_string_type")
+                continue
+            guess_lower = guess.lower()
+            if guess_lower in seen:
+                continue
+            seen.add(guess_lower)
+            cleaned_guesses.append(guess)
+            if len(cleaned_guesses) >= max_guesses:
+                break
+        return cleaned_guesses
+
+    def _execute_guesses(self, team: Team, guesses: List[str]) -> None:
+        """
+        Execute a list of guesses for a team.
+
+        Processes each guess, updates game state, and provides feedback.
+        Stops on bomb hit, wrong guess, or invalid guess.
+
+        Args:
+            team: The team making the guesses
+            guesses: List of validated guesses to execute
+        """
+        board_words_lower = {w.lower() for w in self.board.all_words}
+        revealed_lower = {w.lower() for w in self.game.revealed_words}
+
+        for guess_word in guesses:
+            try:
+                guess_lower = guess_word.lower()
+                if guess_lower not in board_words_lower:
+                    self._log(f"   Invalid guess '{self._sanitize_for_log(guess_word)}': word not on board. Turn ends.")
+                    self.game.record_invalid_guess(guess_word, "not_on_board")
+                    break
+                if guess_lower in revealed_lower:
+                    self._log(f"   Invalid guess '{self._sanitize_for_log(guess_word)}': word already revealed. Turn ends.")
+                    self.game.record_invalid_guess(guess_word, "already_revealed")
+                    break
+
+                result = self.game.make_guess(guess_word)
+                self._log(f"   → {result}")
+                revealed_lower.add(guess_lower)
+
+                # Give feedback to guesser
+                guesser = self.agents[team]['guesser']
+                guesser.process_result(guess_word, result.correct, result.color)
+
+                # Check if should stop
+                if result.hit_bomb:
+                    self._log("   BOMB HIT! Game over.")
+                    break
+                elif not result.correct:
+                    self._log("   Wrong. Turn ends.")
+                    break
+
+            except ValueError as e:
+                self._log(f"   Invalid guess '{self._sanitize_for_log(guess_word)}': {e}")
+                self.game.record_invalid_guess(guess_word, "invalid_guess")
+                break
+            except Exception as e:
+                self._log(f"   Unexpected error processing guess '{self._sanitize_for_log(guess_word)}': {e}")
+                self.game.record_invalid_guess(guess_word, "unexpected_error")
+                break
+
     def _get_guesses_from_agent(self, team: Team, hint_word: str, hint_count: int) -> Tuple[Optional[List[str]], Optional[str]]:
         """
         Get guesses from team's guesser.
@@ -316,7 +419,7 @@ class GameRunner:
                     continue
                 return f"Hint error after {max_retries} retries: {invalid_msg}"
 
-            self._log(f"Hint: '{hint.word}' ({hint.count})")
+            self._log(f"Hint: '{self._sanitize_for_log(hint.word)}' ({hint.count})")
 
             # 2. Start turn with hint
             try:
@@ -353,6 +456,10 @@ class GameRunner:
                     return f"Guesser exception after {max_retries} retries: {str(e)}"
             
             if not guesses:
+                # NOTE: Empty guesses could indicate either:
+                # 1. Intentional pass by the LLM (strategic decision)
+                # 2. LLM failure to generate valid guesses
+                # We treat both cases the same way - end the turn gracefully
                 self._log("   Team passes (no guesses)")
                 self.game.end_turn()
                 return None
@@ -362,68 +469,16 @@ class GameRunner:
             if max_guesses is None:
                 max_guesses = hint.count + 1
 
-            cleaned_guesses = []
-            seen = set()
-            for guess in guesses:
-                if not isinstance(guess, str):
-                    self._log(f"   Skipping non-string guess: {guess}")
-                    self.game.record_invalid_guess(str(guess), "non_string_type")
-                    continue
-                guess_lower = guess.lower()
-                if guess_lower in seen:
-                    continue
-                seen.add(guess_lower)
-                cleaned_guesses.append(guess)
-                if len(cleaned_guesses) >= max_guesses:
-                    break
-
-            guesses = cleaned_guesses
+            guesses = self._clean_guesses(guesses, max_guesses)
             if not guesses:
                 self._log("   Team passes after validation (no valid guesses)")
                 self.game.end_turn()
                 return None
 
-            self._log(f"Guesses: {guesses}")
+            self._log(f"Guesses: {[self._sanitize_for_log(g) for g in guesses]}")
 
             # 4. Execute guesses
-            board_words_lower = {w.lower() for w in self.board.all_words}
-            revealed_lower = {w.lower() for w in self.game.revealed_words}
-            for guess_word in guesses:
-                try:
-                    guess_lower = guess_word.lower()
-                    if guess_lower not in board_words_lower:
-                        self._log(f"   Invalid guess '{guess_word}': word not on board. Turn ends.")
-                        self.game.record_invalid_guess(guess_word, "not_on_board")
-                        break
-                    if guess_lower in revealed_lower:
-                        self._log(f"   Invalid guess '{guess_word}': word already revealed. Turn ends.")
-                        self.game.record_invalid_guess(guess_word, "already_revealed")
-                        break
-
-                    result = self.game.make_guess(guess_word)
-                    self._log(f"   → {result}")
-                    revealed_lower.add(guess_lower)
-
-                    # Give feedback to guesser
-                    guesser = self.agents[team]['guesser']
-                    guesser.process_result(guess_word, result.correct, result.color)
-
-                    # Check if should stop
-                    if result.hit_bomb:
-                        self._log("   BOMB HIT! Game over.")
-                        break
-                    elif not result.correct:
-                        self._log("   Wrong. Turn ends.")
-                        break
-
-                except ValueError as e:
-                    self._log(f"   Invalid guess '{guess_word}': {e}")
-                    self.game.record_invalid_guess(guess_word, "invalid_guess")
-                    break
-                except Exception as e:
-                    self._log(f"   Unexpected error processing guess '{guess_word}': {e}")
-                    self.game.record_invalid_guess(guess_word, "unexpected_error")
-                    break
+            self._execute_guesses(team, guesses)
 
             # 5. End turn
             self.game.end_turn()

@@ -270,7 +270,8 @@ class BAMLGuesser(Guesser):
 # CONVENIENCE FACTORY FUNCTIONS
 # ============================================================================
 
-# Module-level constant for provider/model to BAMLModel mapping
+# Internal mapping for provider/model to BAMLModel (underscore prefix indicates private)
+# Public constants use SCREAMING_SNAKE_CASE without underscore prefix
 _PROVIDER_MODEL_MAP = {
     ("openai", "gpt-4o-mini"): BAMLModel.GPT4O_MINI,
     ("openai", "gpt-4o"): BAMLModel.GPT4O,

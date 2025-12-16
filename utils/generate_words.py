@@ -5,7 +5,8 @@ from typing import List, Optional
 
 from config import DataConfig, GameConfig
 
-# Get the directory where this file is located
+# Internal module constants (prefixed with underscore to indicate private use)
+# These follow Python naming convention: _SCREAMING_SNAKE_CASE for private constants
 _UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
 _DEFAULT_CSV_PATH = os.path.join(_UTILS_DIR, "words.csv")
 

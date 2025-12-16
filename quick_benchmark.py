@@ -38,7 +38,7 @@ load_dotenv()
 BENCHMARK_MODELS = get_benchmark_models()
 
 # Quick benchmark settings
-GAMES_PER_COMBINATION = 2  # Reduced for quick results
+GAMES_PER_COMBINATION = 2  # Quick benchmark uses fewer games; comprehensive_benchmark.py uses 3+
 OUTPUT_DIR = "quick_benchmark_results"
 VERBOSE = True
 
@@ -344,7 +344,26 @@ class QuickBenchmarkRunner:
                     # Per-turn aggregates already accounted for above
     
     def run(self) -> QuickBenchmarkResult:
-        """Run the quick benchmark."""
+        """
+        Run the quick benchmark across all model combinations.
+
+        Executes games for each combination of hint giver and guesser models,
+        tracking performance metrics and game outcomes.
+
+        Returns:
+            QuickBenchmarkResult containing:
+            - benchmark_id: Unique identifier for this benchmark run
+            - model_performance: Per-model metrics (wins, guesses, accuracy)
+            - team_combinations: Results for each team combination tested
+            - game_results: List of individual GameResult objects
+
+        Raises:
+            RuntimeError: If required API keys are missing for the configured models
+
+        Side Effects:
+            - Makes API calls to LLM providers for each game
+            - Logs progress to stdout if verbose mode is enabled
+        """
         
         self._log("=" * 80)
         self._log("QUICK CODENAMES BENCHMARK")
@@ -360,11 +379,12 @@ class QuickBenchmarkRunner:
         # Define test combinations (focused set)
         test_combinations = []
         
-        # 1. Each model as hint giver vs each model as guesser (25 combinations)
-        # Each model can only play one role per game
+        # 1. Generate combinations where each model plays at most one role per game
+        # This constraint ensures fair evaluation - no model competes against itself
+        # or has an advantage from playing multiple roles. With N models and 4 roles,
+        # this produces permutation-style combinations (N * (N-1) * (N-2) * (N-3)).
         for blue_hint in BENCHMARK_MODELS:
             for red_guess in BENCHMARK_MODELS:
-                # Use different models for blue guesser and red hint giver to avoid conflicts
                 for blue_guess in BENCHMARK_MODELS:
                     if blue_guess != blue_hint:  # Blue hint giver and guesser must be different
                         for red_hint in BENCHMARK_MODELS:

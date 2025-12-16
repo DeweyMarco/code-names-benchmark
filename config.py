@@ -111,6 +111,9 @@ class LLMConfig:
     # Cost tracking (approximate USD per 1K tokens)
     # WARNING: Costs are organized into VERIFIED (confirmed pricing) and UNVERIFIED
     # (speculative/estimated pricing). Unverified costs may be inaccurate.
+    # SECURITY NOTE: This dictionary should ONLY contain pricing data.
+    # Never store API keys, credentials, or other sensitive information here.
+    # API keys should be loaded from environment variables via .env files.
     MODEL_COSTS = {
         # ======================================================================
         # VERIFIED PRICING - Confirmed from official pricing pages
@@ -308,7 +311,12 @@ class Config:
 default_config = Config.default()
 
 
-# Convenience imports for backward compatibility
+# Convenience constants for backward compatibility
+# NOTE: These module-level constants are derived from the default configuration
+# at module load time. For runtime configuration changes, use the Config class
+# directly or pass custom GameConfig instances to components.
+# These constants exist for backward compatibility with code that expects
+# simple module-level imports like `from config import BOARD_SIZE`.
 BOARD_SIZE = default_config.game.BOARD_SIZE
 BLUE_WORDS = default_config.game.BLUE_WORDS
 RED_WORDS = default_config.game.RED_WORDS
