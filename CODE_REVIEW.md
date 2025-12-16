@@ -6,19 +6,7 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Low Severity Issues
 
-### 17. Incomplete Dataclass Field
-**Location:** `orchestrator/game_runner.py:31`
-
-```python
-error: Optional[str] = None
-timestamp: datetime = field(default_factory=datetime.now)
-```
-
-**Problem:** Using `datetime.now` as a factory function captures the time when the factory is called, not when the instance is created. Should be `lambda: datetime.now()` to be explicit.
-
----
-
-### 18. Potential Confusion in Bomb Handling
+### 17. Potential Confusion in Bomb Handling
 **Location:** `game/state.py:192-198`
 
 ```python
@@ -159,11 +147,11 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 |----------|-------|
 | High Severity | 0 |
 | Medium Severity | 0 |
-| Low Severity | 3 |
+| Low Severity | 2 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **12** |
+| **Total** | **11** |
 
 ### Priority Recommendations
 

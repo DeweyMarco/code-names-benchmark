@@ -29,7 +29,7 @@ class GameResult:
     red_hint_giver_name: str
     red_guesser_name: str
     error: Optional[str] = None
-    timestamp: datetime = field(default_factory=datetime.now)
+    timestamp: datetime = field(default_factory=lambda: datetime.now())
     
     def to_dict(self) -> dict:
         """Convert to dictionary for logging/storage."""
