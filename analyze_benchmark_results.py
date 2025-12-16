@@ -225,8 +225,8 @@ class BenchmarkAnalyzer:
         
         combo_df = self.analyze_team_combinations()
         
-        # Filter for combinations with sufficient games
-        combo_df = combo_df[combo_df['games_played'] >= 2]  # At least 2 games
+        # Filter for combinations with sufficient games (minimum 2 for statistical relevance)
+        combo_df = combo_df[combo_df['games_played'] >= 2]
         
         # Sort by blue win rate
         dominant_combos = combo_df.nlargest(top_n, 'blue_win_rate')

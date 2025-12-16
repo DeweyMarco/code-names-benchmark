@@ -406,7 +406,7 @@ def main():
     # Done!
     print_section(f"{Colors.GREEN}DEMO COMPLETE!{Colors.RESET}")
     print("\nTo run another game with different models:")
-    print("  1. Edit the Players class in this file (lines 41-44)")
+    print("  1. Edit the Players class in this file (lines 58-62)")
     print("  2. Change the BAMLModel values to any available model")
     print("  3. Run: python3 demo_simple_game.py")
     print("\nTo try other demos, check out: demo_llm_game.py")
