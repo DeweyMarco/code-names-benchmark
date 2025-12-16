@@ -30,6 +30,13 @@ class GameConfig:
 
     def validate(self) -> bool:
         """Validate that the configuration is internally consistent."""
+        # Validate board size constraints
+        if self.BOARD_SIZE < 9:
+            raise ValueError("Board size must be at least 9")
+        if self.BOARD_SIZE % 2 == 0:
+            raise ValueError("Board size should be odd for fair play")
+
+        # Validate word counts add up correctly
         total = self.BLUE_WORDS + self.RED_WORDS + self.NEUTRAL_WORDS + self.BOMB_COUNT
         if total != self.BOARD_SIZE:
             raise ValueError(

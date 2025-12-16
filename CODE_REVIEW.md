@@ -6,20 +6,6 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Medium Severity Issues
 
-### 9. Missing Validation for Custom Board Sizes
-**Location:** `config.py:54-57`
-
-```python
-if board_size < 9:
-    raise ValueError("Board size must be at least 9")
-if board_size % 2 == 0:
-    raise ValueError("Board size should be odd for fair play")
-```
-
-**Problem:** The custom board size validation requires odd numbers, but the default `BOARD_SIZE = 25` is used elsewhere without this check. Also, the distribution algorithm at lines 61-63 doesn't guarantee the total adds up correctly for all board sizes.
-
----
-
 ### 10. Inconsistent Case Handling
 **Location:** Multiple files
 
@@ -266,12 +252,12 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 | Category | Count |
 |----------|-------|
 | High Severity | 0 |
-| Medium Severity | 3 |
+| Medium Severity | 2 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **22** |
+| **Total** | **21** |
 
 ### Priority Recommendations
 
