@@ -24,8 +24,8 @@ class HintResponse:
         if not self.word or not isinstance(self.word, str):
             return False, "Hint word must be a non-empty string"
         
-        if not isinstance(self.count, int) or self.count < 0:
-            return False, "Hint count must be a non-negative integer"
+        if not isinstance(self.count, int) or self.count < 1:
+            return False, "Hint count must be a positive integer"
         
         # Check for multi-word hints
         if ' ' in self.word.strip():
