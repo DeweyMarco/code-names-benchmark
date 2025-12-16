@@ -6,18 +6,7 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Medium Severity Issues
 
-### 5. Incomplete Error Handling for Guesser Results
-**Location:** `orchestrator/game_runner.py:400`
-
-```python
-result = self.game.make_guess(guess_word)
-```
-
-**Problem:** If `make_guess` raises an exception other than `ValueError`, it will propagate up and crash the game. The outer try/except only catches `ValueError`.
-
----
-
-### 6. Memory Leak in Guesser History
+### 5. Memory Leak in Guesser History
 **Location:** `agents/llm/baml_agents.py:211, 252-256`
 
 ```python
@@ -314,12 +303,12 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 | Category | Count |
 |----------|-------|
 | High Severity | 0 |
-| Medium Severity | 7 |
+| Medium Severity | 6 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **26** |
+| **Total** | **25** |
 
 ### Priority Recommendations
 

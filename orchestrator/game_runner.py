@@ -419,6 +419,10 @@ class GameRunner:
                     self._log(f"   Invalid guess '{guess_word}': {e}")
                     self.game.record_invalid_guess(guess_word, "invalid_guess")
                     break
+                except Exception as e:
+                    self._log(f"   Unexpected error processing guess '{guess_word}': {e}")
+                    self.game.record_invalid_guess(guess_word, "unexpected_error")
+                    break
 
             # 5. End turn
             self.game.end_turn()
