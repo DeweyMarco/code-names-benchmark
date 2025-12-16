@@ -12,20 +12,6 @@ This document contains bugs, errors, and issues identified during a thorough rev
 
 ---
 
-## Logic Errors
-
-### 1. sort_words_to_codename_groups has misleading behavior
-**File:** `utils/generate_words.py:65-99`
-**Severity:** Medium
-
-The function name and docstring suggest it "sorts words into codename groups" but it actually assigns colors based purely on list position (first N words are blue, next M are red, etc.). This is deterministic, not random.
-
-The actual randomization happens in `Board._initialize_board()` which shuffles the colors. However, if someone uses `sort_words_to_codename_groups()` directly expecting random assignment, they won't get it.
-
-**Fix:** Rename to `assign_words_to_codename_groups_by_position()` or add shuffling.
-
----
-
 ## Configuration Issues
 
 ### 2. Default models reference unverified/non-existent models
@@ -197,7 +183,6 @@ neutral_words = board_size - starting_words - other_words - 1  # Could be negati
 
 | # | File | Line | Severity | Description |
 |---|------|------|----------|-------------|
-| 1 | generate_words.py | 65-99 | Medium | Misleading function behavior |
 | 2 | Multiple | - | High | Unverified models as defaults |
 | 3 | quick_benchmark.py | 136-142 | Medium | API check uses non-existent models |
 | 4 | base.py | 134-149 | Medium | Abstract method should be optional |

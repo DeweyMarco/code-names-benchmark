@@ -62,12 +62,17 @@ def generate_word_list(num_words: Optional[int] = None, csv_path: Optional[str] 
     
     return selected_words
 
-def sort_words_to_codename_groups(words, config=None):
+def assign_words_to_codename_groups_by_position(words, config=None):
     """
-    Sort the words in to codename groups
+    Assign words to codename groups based on their position in the list.
+
+    This function deterministically assigns colors based on list position:
+    first N words become blue, next M become red, etc. It does NOT shuffle
+    or randomize. For random board generation, use Board._initialize_board()
+    which shuffles the colors after assignment.
 
     Args:
-        words: List of words to be sorted
+        words: List of words to be assigned (order determines color assignment)
         config: GameConfig instance (uses default if None)
 
     Returns:
@@ -177,7 +182,7 @@ if __name__ == "__main__":
     start_list = generate_word_list(25)
     
     # Assign words to codename groups
-    codename_groups = sort_words_to_codename_groups(start_list)
+    codename_groups = assign_words_to_codename_groups_by_position(start_list)
 
     print_codename_groups(codename_groups)
     print("\n")
