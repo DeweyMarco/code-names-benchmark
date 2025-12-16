@@ -1,6 +1,7 @@
 import random
 import csv
 import os
+from typing import List, Optional
 
 from config import DataConfig, GameConfig
 
@@ -8,7 +9,7 @@ from config import DataConfig, GameConfig
 _UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
 _DEFAULT_CSV_PATH = os.path.join(_UTILS_DIR, "words.csv")
 
-def load_words_from_csv(csv_path=None):
+def load_words_from_csv(csv_path: Optional[str] = None) -> List[str]:
     """
     Load words from a CSV file.
     
@@ -29,7 +30,7 @@ def load_words_from_csv(csv_path=None):
     return words
 
 
-def generate_word_list(num_words=None, csv_path=None):
+def generate_word_list(num_words: Optional[int] = None, csv_path: Optional[str] = None) -> List[str]:
     """
     Generate a list of random words.
 
