@@ -6,14 +6,7 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Low Severity Issues
 
-### 14. Inconsistent Logging
-**Location:** `game/state.py`, `orchestrator/game_runner.py`
-
-**Problem:** `GameState.print_status()` uses `logger.info()` while `GameRunner._log()` uses `print()` when verbose. This inconsistency makes log management difficult.
-
----
-
-### 15. Poor Error Messages
+### 14. Poor Error Messages
 **Location:** `agents/base.py:27-28`
 
 ```python
@@ -25,7 +18,7 @@ if not isinstance(self.count, int) or self.count < 0:
 
 ---
 
-### 16. Missing Type Hints
+### 15. Missing Type Hints
 **Location:** `utils/generate_words.py`
 
 **Problem:** Most functions lack return type hints:
@@ -36,7 +29,7 @@ def generate_word_list(num_words=None, csv_path=None):  # Should be -> List[str]
 
 ---
 
-### 17. Orphaned Code Reference
+### 16. Orphaned Code Reference
 **Location:** `demo_simple_game.py:488`
 
 ```python
@@ -47,7 +40,7 @@ print("To try other demos, check out: demo_llm_game.py")
 
 ---
 
-### 18. Incomplete Dataclass Field
+### 17. Incomplete Dataclass Field
 **Location:** `orchestrator/game_runner.py:31`
 
 ```python
@@ -59,7 +52,7 @@ timestamp: datetime = field(default_factory=datetime.now)
 
 ---
 
-### 19. Potential Confusion in Bomb Handling
+### 18. Potential Confusion in Bomb Handling
 **Location:** `game/state.py:192-198`
 
 ```python
@@ -74,7 +67,7 @@ if last_result.hit_bomb:
 
 ---
 
-### 20. Empty Turn Handling Ambiguity
+### 19. Empty Turn Handling Ambiguity
 **Location:** `orchestrator/game_runner.py:352-356`
 
 ```python
@@ -90,14 +83,14 @@ if not guesses:
 
 ## Code Quality Issues
 
-### 21. Long Methods
+### 20. Long Methods
 **Location:** `orchestrator/game_runner.py:254-423`
 
 **Problem:** `_execute_turn` is 170 lines long with deeply nested logic. Should be refactored into smaller, focused methods.
 
 ---
 
-### 22. Configuration Coupling
+### 21. Configuration Coupling
 **Location:** `config.py:301-310`
 
 ```python
@@ -109,7 +102,7 @@ BLUE_WORDS = default_config.game.BLUE_WORDS
 
 ---
 
-### 23. Inconsistent Naming Conventions
+### 22. Inconsistent Naming Conventions
 **Location:** Multiple files
 
 **Problem:** Mixed naming styles:
@@ -120,7 +113,7 @@ BLUE_WORDS = default_config.game.BLUE_WORDS
 
 ---
 
-### 24. Missing docstrings
+### 23. Missing docstrings
 **Location:** `quick_benchmark.py:345`
 
 ```python
@@ -132,7 +125,7 @@ def run(self) -> QuickBenchmarkResult:
 
 ---
 
-### 25. Dead Code Path in Team Combination Logic
+### 24. Dead Code Path in Team Combination Logic
 **Location:** `quick_benchmark.py:363-376`
 
 ```python
@@ -154,14 +147,14 @@ for blue_hint in BENCHMARK_MODELS:
 
 ## Security Considerations
 
-### 26. API Key Exposure Risk
+### 25. API Key Exposure Risk
 **Location:** `config.py:107-197`
 
 **Problem:** Model costs dictionary includes pricing for models that reference API keys. While keys aren't stored here, the configuration pattern could lead developers to add sensitive data.
 
 ---
 
-### 27. No Input Sanitization for Hint Words
+### 26. No Input Sanitization for Hint Words
 **Location:** `orchestrator/game_runner.py:123-156`
 
 **Problem:** Hint words from LLMs are validated against board words but not sanitized for logging. If an LLM returns malicious content, it could appear in logs.
@@ -170,7 +163,7 @@ for blue_hint in BENCHMARK_MODELS:
 
 ## Documentation Issues
 
-### 28. Outdated Comments
+### 27. Outdated Comments
 **Location:** `baml_src/clients.baml:8, 54, 271, etc.`
 
 ```
@@ -183,7 +176,7 @@ for blue_hint in BENCHMARK_MODELS:
 
 ---
 
-### 29. Misleading Variable Name
+### 28. Misleading Variable Name
 **Location:** `quick_benchmark.py:41`
 
 ```python
@@ -200,11 +193,11 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 |----------|-------|
 | High Severity | 0 |
 | Medium Severity | 0 |
-| Low Severity | 7 |
+| Low Severity | 6 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **16** |
+| **Total** | **15** |
 
 ### Priority Recommendations
 
