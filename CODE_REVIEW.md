@@ -6,20 +6,6 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Medium Severity Issues
 
-### 5. Memory Leak in Guesser History
-**Location:** `agents/llm/baml_agents.py:211, 252-256`
-
-```python
-self.guess_history = []  # Track guess results for analysis
-# ...
-def process_result(self, guessed_word: str, was_correct: bool, color: CardColor):
-    self.guess_history.append({...})
-```
-
-**Problem:** `guess_history` is never cleared between games when agents are reused. In long benchmark runs with agent reuse, this list will grow unbounded.
-
----
-
 ### 7. Inconsistent Winner Value in Analysis
 **Location:** `analyze_benchmark_results.py:73-74`
 
@@ -303,12 +289,12 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 | Category | Count |
 |----------|-------|
 | High Severity | 0 |
-| Medium Severity | 6 |
+| Medium Severity | 5 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **25** |
+| **Total** | **24** |
 
 ### Priority Recommendations
 

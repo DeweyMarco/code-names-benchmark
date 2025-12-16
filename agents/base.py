@@ -135,16 +135,25 @@ class Guesser(ABC):
     def process_result(self, guessed_word: str, was_correct: bool, color: CardColor):
         """
         Receive feedback on a guess (optional for learning/adjustment).
-        
+
         Args:
             guessed_word: The word that was guessed
             was_correct: Whether it was the team's word
             color: The actual color of the word
-        
+
         Notes:
             - This is called after each guess
             - Agents can use this to adjust their strategy
             - Not required to do anything (default implementation can pass)
+        """
+        pass
+
+    def reset(self):
+        """
+        Reset agent state between games.
+
+        Subclasses should override this to clear any accumulated state
+        (e.g., guess history) when agents are reused across multiple games.
         """
         pass
 

@@ -261,6 +261,10 @@ class BAMLGuesser(Guesser):
             'color': color.value
         })
 
+    def reset(self):
+        """Reset agent state between games to prevent memory leaks."""
+        self.guess_history = []
+
 
 # ============================================================================
 # CONVENIENCE FACTORY FUNCTIONS
