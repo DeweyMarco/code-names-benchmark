@@ -6,17 +6,6 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Low Severity Issues
 
-### 16. Orphaned Code Reference
-**Location:** `demo_simple_game.py:488`
-
-```python
-print("To try other demos, check out: demo_llm_game.py")
-```
-
-**Problem:** `demo_llm_game.py` doesn't exist in the repository.
-
----
-
 ### 17. Incomplete Dataclass Field
 **Location:** `orchestrator/game_runner.py:31`
 
@@ -170,11 +159,11 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 |----------|-------|
 | High Severity | 0 |
 | Medium Severity | 0 |
-| Low Severity | 4 |
+| Low Severity | 3 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **13** |
+| **Total** | **12** |
 
 ### Priority Recommendations
 
