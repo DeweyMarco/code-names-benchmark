@@ -22,7 +22,7 @@ class RandomHintGiver(HintGiver):
     ) -> HintResponse:
         """Give a random hint."""
         if not my_words:
-            return HintResponse(word="pass", count=0)
+            return HintResponse(word="pass", count=1)
         
         # Pick a random word from our team as the "hint"
         hint_word = f"hint_{random.randint(1, 100)}"
