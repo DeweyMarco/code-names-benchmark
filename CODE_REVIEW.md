@@ -6,16 +6,7 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## Medium Severity Issues
 
-### 10. Inconsistent Case Handling
-**Location:** Multiple files
-
-**Problem:** Words are normalized to lowercase in `Board.__init__` but some comparisons/lookups don't use `.lower()`:
-- `game_runner.py:386-387` creates `board_words_lower` and `revealed_lower` locally, but this pattern isn't consistent
-- The `sort_words_to_codename_groups` function in `generate_words.py` doesn't normalize case
-
----
-
-### 11. Silent Failure on Invalid Guesses
+### 10. Silent Failure on Invalid Guesses
 **Location:** `orchestrator/game_runner.py:365-376`
 
 ```python
@@ -252,12 +243,12 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 | Category | Count |
 |----------|-------|
 | High Severity | 0 |
-| Medium Severity | 2 |
+| Medium Severity | 1 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **21** |
+| **Total** | **20** |
 
 ### Priority Recommendations
 

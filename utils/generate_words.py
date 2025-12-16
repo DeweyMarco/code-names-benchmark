@@ -70,20 +70,24 @@ def sort_words_to_codename_groups(words, config=None):
 
     Returns:
         Dictionary with codename groups as keys and lists of words as values
+        (all words normalized to lowercase for consistent comparison)
     """
     # Use default config if not provided
     if config is None:
         config = GameConfig()
+
+    # Normalize words to lowercase for consistent comparison
+    normalized_words = [w.lower() for w in words]
 
     # Assign words to groups based on config
     blue_end = config.BLUE_WORDS
     red_end = blue_end + config.RED_WORDS
     bomb_end = red_end + config.BOMB_COUNT
 
-    blue_words = words[:blue_end]
-    red_words = words[blue_end:red_end]
-    bomb_word = words[red_end:bomb_end]
-    neutral_words = words[bomb_end:]
+    blue_words = normalized_words[:blue_end]
+    red_words = normalized_words[blue_end:red_end]
+    bomb_word = normalized_words[red_end:bomb_end]
+    neutral_words = normalized_words[bomb_end:]
 
     return {
         "blue": blue_words,
@@ -145,7 +149,7 @@ def print_codename_groups(codename_groups):
 def print_color_grid(grid, codename_groups):
     """
     Print the color grid.
-    
+
     Args:
         grid: 2D list of words
         codename_groups: Dictionary with codename groups as keys and lists of words as values
@@ -154,11 +158,12 @@ def print_color_grid(grid, codename_groups):
     print("-" * (len(grid) * (max_length + 3) - 3))
     for row in grid:
         for word in row:
-            if word in codename_groups["blue"]:
+            word_lower = word.lower()
+            if word_lower in codename_groups["blue"]:
                 print(f"\033[94m{word.ljust(max_length)}\033[0m", end=" ")
-            elif word in codename_groups["red"]:
+            elif word_lower in codename_groups["red"]:
                 print(f"\033[91m{word.ljust(max_length)}\033[0m", end=" ")
-            elif word in codename_groups["bomb"]:
+            elif word_lower in codename_groups["bomb"]:
                 print(f"\033[93m{word.ljust(max_length)}\033[0m", end=" ")
             else:
                 print(word.ljust(max_length), end=" ")
