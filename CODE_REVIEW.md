@@ -12,31 +12,9 @@ This document contains bugs, errors, and issues identified during a thorough rev
 
 ---
 
-## Critical Bugs
-
-### 1. analyze_benchmark_results expects keys that don't exist
-**File:** `analyze_benchmark_results.py:145-151`
-**Severity:** Critical
-
-The `analyze_team_combinations()` method accesses `combo_stats['blue_win_rate']`, `combo_stats['red_win_rate']`, and `combo_stats['avg_turns']`, but these keys are never populated in `quick_benchmark.py`. The `_update_team_combination` method only sets raw counts (`blue_wins`, `red_wins`, `games_played`, `total_turns`), not the calculated rates.
-
-```python
-'blue_win_rate': combo_stats['blue_win_rate'],  # KeyError - doesn't exist
-'red_win_rate': combo_stats['red_win_rate'],    # KeyError - doesn't exist
-'avg_turns': combo_stats['avg_turns'],          # KeyError - doesn't exist
-```
-
-**Fix:** Calculate these values in `analyze_team_combinations()`:
-```python
-'blue_win_rate': combo_stats['blue_wins'] / combo_stats['games_played'] if combo_stats['games_played'] > 0 else 0,
-'avg_turns': combo_stats['total_turns'] / combo_stats['games_played'] if combo_stats['games_played'] > 0 else 0,
-```
-
----
-
 ## Logic Errors
 
-### 2. Guesser retry after turn started corrupts game state
+### 1. Guesser retry after turn started corrupts game state
 **File:** `orchestrator/game_runner.py:440-456`
 **Severity:** High
 
@@ -55,7 +33,7 @@ try:
 
 ---
 
-### 3. sort_words_to_codename_groups has misleading behavior
+### 2. sort_words_to_codename_groups has misleading behavior
 **File:** `utils/generate_words.py:65-99`
 **Severity:** Medium
 
@@ -69,7 +47,7 @@ The actual randomization happens in `Board._initialize_board()` which shuffles t
 
 ## Configuration Issues
 
-### 4. Default models reference unverified/non-existent models
+### 3. Default models reference unverified/non-existent models
 **Files:** Multiple locations
 **Severity:** High
 
@@ -87,7 +65,7 @@ These models may not exist or may fail at runtime.
 
 ---
 
-### 5. API key check references non-existent models
+### 4. API key check references non-existent models
 **File:** `quick_benchmark.py:136-142`
 **Severity:** Medium
 
@@ -107,7 +85,7 @@ required_keys = {
 
 ## Design Issues
 
-### 6. process_result should not be abstract
+### 5. process_result should not be abstract
 **File:** `agents/base.py:134-149`
 **Severity:** Medium
 
@@ -133,7 +111,7 @@ def process_result(self, guessed_word: str, was_correct: bool, color: CardColor)
 
 ---
 
-### 7. RESTRICTED_TEMPERATURE_MODELS contains unverified models
+### 6. RESTRICTED_TEMPERATURE_MODELS contains unverified models
 **File:** `model_config.py:60-72`
 **Severity:** Low
 
@@ -145,7 +123,7 @@ The set includes models like `GPT5`, `GPT5_MINI`, `GPT5_NANO`, etc. that don't e
 
 ## Potential Runtime Errors
 
-### 8. Potential IndexError when game_results is empty
+### 7. Potential IndexError when game_results is empty
 **File:** `benchmark_runner.py:248-253`
 **Severity:** Medium
 
@@ -171,7 +149,7 @@ agent_names = {
 
 ---
 
-### 9. BAMLModel enum creation may fail with invalid strings
+### 8. BAMLModel enum creation may fail with invalid strings
 **File:** `analyze_benchmark_results.py:512-513`
 **Severity:** Medium
 
@@ -194,7 +172,7 @@ except ValueError:
 
 ## Minor Issues
 
-### 10. Inconsistent error handling in game_runner retries
+### 9. Inconsistent error handling in game_runner retries
 **File:** `orchestrator/game_runner.py:400-407`
 **Severity:** Low
 
@@ -212,7 +190,7 @@ self._log(f"Will retry in {next_delay} seconds...")  # Also no .1f formatting
 
 ---
 
-### 11. Unused import in model_config.py
+### 10. Unused import in model_config.py
 **File:** `model_config.py:17`
 **Severity:** Low
 
@@ -220,7 +198,7 @@ The file imports `BAMLModel` from `agents.llm` and defines `get_model_display_na
 
 ---
 
-### 12. Missing validation for board_size in custom config
+### 11. Missing validation for board_size in custom config
 **File:** `config.py:50-83`
 **Severity:** Low
 
@@ -238,24 +216,22 @@ neutral_words = board_size - starting_words - other_words - 1  # Could be negati
 
 | # | File | Line | Severity | Description |
 |---|------|------|----------|-------------|
-| 1 | analyze_benchmark_results.py | 145-151 | Critical | Missing dict keys |
-| 2 | game_runner.py | 440-456 | High | Retry corrupts turn history |
-| 3 | generate_words.py | 65-99 | Medium | Misleading function behavior |
-| 4 | Multiple | - | High | Unverified models as defaults |
-| 5 | quick_benchmark.py | 136-142 | Medium | API check uses non-existent models |
-| 6 | base.py | 134-149 | Medium | Abstract method should be optional |
-| 7 | model_config.py | 60-72 | Low | Unverified models in set |
-| 8 | benchmark_runner.py | 248-253 | Medium | Potential IndexError |
-| 9 | analyze_benchmark_results.py | 512-513 | Medium | BAMLModel construction may fail |
-| 10 | game_runner.py | 395-407 | Low | Inconsistent retry logging |
-| 11 | model_config.py | 17 | Low | Import pattern |
-| 12 | config.py | 50-83 | Low | Missing neutral_words validation |
+| 1 | game_runner.py | 440-456 | High | Retry corrupts turn history |
+| 2 | generate_words.py | 65-99 | Medium | Misleading function behavior |
+| 3 | Multiple | - | High | Unverified models as defaults |
+| 4 | quick_benchmark.py | 136-142 | Medium | API check uses non-existent models |
+| 5 | base.py | 134-149 | Medium | Abstract method should be optional |
+| 6 | model_config.py | 60-72 | Low | Unverified models in set |
+| 7 | benchmark_runner.py | 248-253 | Medium | Potential IndexError |
+| 8 | analyze_benchmark_results.py | 512-513 | Medium | BAMLModel construction may fail |
+| 9 | game_runner.py | 395-407 | Low | Inconsistent retry logging |
+| 10 | model_config.py | 17 | Low | Import pattern |
+| 11 | config.py | 50-83 | Low | Missing neutral_words validation |
 
 ---
 
 ## Recommended Priority
 
-1. **Fix critical bug (#1)** - This will cause immediate failures
-2. **Fix high severity issues (#2, #4)** - These affect reliability
-3. **Fix medium severity issues** - These may cause problems in edge cases
-4. **Address low severity issues** - Code quality improvements
+1. **Fix high severity issues (#1, #3)** - These affect reliability
+2. **Fix medium severity issues** - These may cause problems in edge cases
+3. **Address low severity issues** - Code quality improvements

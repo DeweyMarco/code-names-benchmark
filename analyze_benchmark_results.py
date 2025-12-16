@@ -144,9 +144,9 @@ class BenchmarkAnalyzer:
                 'blue_wins': combo_stats['blue_wins'],
                 'red_wins': combo_stats['red_wins'],
                 'draws': combo_stats['draws'],
-                'blue_win_rate': combo_stats['blue_win_rate'],
-                'red_win_rate': combo_stats['red_win_rate'],
-                'avg_turns': combo_stats['avg_turns'],
+                'blue_win_rate': combo_stats['blue_wins'] / combo_stats['games_played'] if combo_stats['games_played'] > 0 else 0,
+                'red_win_rate': combo_stats['red_wins'] / combo_stats['games_played'] if combo_stats['games_played'] > 0 else 0,
+                'avg_turns': combo_stats['total_turns'] / combo_stats['games_played'] if combo_stats['games_played'] > 0 else 0,
                 'errors': combo_stats['errors']
             })
         
