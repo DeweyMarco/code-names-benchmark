@@ -474,7 +474,8 @@ class QuickBenchmarkRunner:
         self._log(f"Total combinations tested: {result.total_combinations}")
         self._log(f"Total games played: {result.total_games}")
         self._log(f"Total time: {total_time:.1f} seconds ({total_time/60:.1f} minutes)")
-        self._log(f"Average time per game: {total_time/result.total_games:.1f} seconds")
+        if result.total_games > 0:
+            self._log(f"Average time per game: {total_time/result.total_games:.1f} seconds")
         
         # Find best performing team combinations
         self._log("\nTOP 10 TEAM COMBINATIONS (by Blue Win Rate):")

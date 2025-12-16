@@ -110,7 +110,7 @@ class BenchmarkAnalyzer:
                 analysis_data.append({
                     'model_role': model_role,
                     'total_games': stats['total_games'],
-                    'win_rate': stats['total_wins'] / stats['total_games'],
+                    'win_rate': stats['total_wins'] / stats['total_games'] if stats['total_games'] > 0 else 0,
                     'hint_success_rate': stats['successful_hints'] / stats['hints_given'] if stats['hints_given'] > 0 else 0,
                     'guess_accuracy': stats['correct_guesses'] / stats['guesses_made'] if stats['guesses_made'] > 0 else 0,
                     'bomb_hit_rate': stats['bomb_hits'] / stats['guesses_made'] if stats['guesses_made'] > 0 else 0

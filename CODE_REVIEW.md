@@ -4,49 +4,9 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ---
 
-## Critical Issues
-
-### 1. Missing Dependencies in requirements.txt
-**Location:** `requirements.txt`
-
-**Problem:** The `analyze_benchmark_results.py` file imports:
-- `pandas`
-- `numpy`
-- `matplotlib`
-- `seaborn`
-
-None of these are listed in `requirements.txt`, so the analysis tool will fail to run on a fresh install.
-
----
-
 ## High Severity Issues
 
-### 2. Division by Zero in Benchmark Analysis
-**Location:** `analyze_benchmark_results.py:113-116`
-
-```python
-'win_rate': stats['total_wins'] / stats['total_games'],
-'hint_success_rate': stats['successful_hints'] / stats['hints_given'] if stats['hints_given'] > 0 else 0,
-'guess_accuracy': stats['correct_guesses'] / stats['guesses_made'] if stats['guesses_made'] > 0 else 0,
-'bomb_hit_rate': stats['bomb_hits'] / stats['guesses_made'] if stats['guesses_made'] > 0 else 0
-```
-
-**Problem:** `win_rate` calculation doesn't guard against `total_games == 0`, which will cause a `ZeroDivisionError`.
-
----
-
-### 3. Potential Division by Zero in Quick Benchmark
-**Location:** `quick_benchmark.py:477`
-
-```python
-self._log(f"Average time per game: {total_time/result.total_games:.1f} seconds")
-```
-
-**Problem:** If no games were played (`result.total_games == 0`), this will cause a `ZeroDivisionError`.
-
----
-
-### 4. Inconsistent Model-to-API-Key Mapping
+### 1. Inconsistent Model-to-API-Key Mapping
 **Location:** `demo_simple_game.py:136-137`
 
 ```python
@@ -58,7 +18,7 @@ BAMLModel.DEEPSEEK_REASONER: "DEEPSEEK_API_KEY",
 
 ---
 
-### 5. Race Condition Risk in ClientRegistry
+### 3. Race Condition Risk in ClientRegistry
 **Location:** `agents/llm/baml_agents.py:149-150, 213-214`
 
 ```python
@@ -70,7 +30,7 @@ self._registry.set_primary(model.value)
 
 ---
 
-### 6. Hardcoded Retry Parameters
+### 4. Hardcoded Retry Parameters
 **Location:** `orchestrator/game_runner.py:267-268`
 
 ```python
@@ -84,7 +44,7 @@ base_retry_delay = LLMConfig.RETRY_DELAY
 
 ## Medium Severity Issues
 
-### 7. Incomplete Error Handling for Guesser Results
+### 5. Incomplete Error Handling for Guesser Results
 **Location:** `orchestrator/game_runner.py:400`
 
 ```python
@@ -95,7 +55,7 @@ result = self.game.make_guess(guess_word)
 
 ---
 
-### 8. Memory Leak in Guesser History
+### 6. Memory Leak in Guesser History
 **Location:** `agents/llm/baml_agents.py:211, 252-256`
 
 ```python
@@ -109,7 +69,7 @@ def process_result(self, guessed_word: str, was_correct: bool, color: CardColor)
 
 ---
 
-### 9. Inconsistent Winner Value in Analysis
+### 7. Inconsistent Winner Value in Analysis
 **Location:** `analyze_benchmark_results.py:73-74`
 
 ```python
@@ -121,7 +81,7 @@ red_won = game.get('winner') == 'RED'
 
 ---
 
-### 10. Unreachable Code in analyze_model_performance
+### 8. Unreachable Code in analyze_model_performance
 **Location:** `analyze_benchmark_results.py:109`
 
 ```python
@@ -132,7 +92,7 @@ if stats['total_games'] > 0:
 
 ---
 
-### 11. Missing Validation for Custom Board Sizes
+### 9. Missing Validation for Custom Board Sizes
 **Location:** `config.py:54-57`
 
 ```python
@@ -146,7 +106,7 @@ if board_size % 2 == 0:
 
 ---
 
-### 12. Inconsistent Case Handling
+### 10. Inconsistent Case Handling
 **Location:** Multiple files
 
 **Problem:** Words are normalized to lowercase in `Board.__init__` but some comparisons/lookups don't use `.lower()`:
@@ -155,7 +115,7 @@ if board_size % 2 == 0:
 
 ---
 
-### 13. Silent Failure on Invalid Guesses
+### 11. Silent Failure on Invalid Guesses
 **Location:** `orchestrator/game_runner.py:365-376`
 
 ```python
@@ -171,14 +131,14 @@ for guess in guesses:
 
 ## Low Severity Issues
 
-### 14. Duplicate Model Display Name Mappings
+### 12. Duplicate Model Display Name Mappings
 **Location:** `demo_simple_game.py:151-224` and `model_config.py:108-117`
 
 **Problem:** `get_model_display_name` is defined in both files with different implementations. The one in `demo_simple_game.py` has many more mappings than `model_config.py`.
 
 ---
 
-### 15. Unused Import
+### 13. Unused Import
 **Location:** `demo_simple_game.py:47`
 
 ```python
@@ -189,7 +149,7 @@ from game import Board, Team, CardColor
 
 ---
 
-### 16. Magic Numbers
+### 14. Magic Numbers
 **Location:** Multiple files
 
 **Problem:** Several magic numbers without explanation:
@@ -199,14 +159,14 @@ from game import Board, Team, CardColor
 
 ---
 
-### 17. Inconsistent Logging
+### 15. Inconsistent Logging
 **Location:** `game/state.py`, `orchestrator/game_runner.py`
 
 **Problem:** `GameState.print_status()` uses `logger.info()` while `GameRunner._log()` uses `print()` when verbose. This inconsistency makes log management difficult.
 
 ---
 
-### 18. Poor Error Messages
+### 16. Poor Error Messages
 **Location:** `agents/base.py:27-28`
 
 ```python
@@ -218,7 +178,7 @@ if not isinstance(self.count, int) or self.count < 0:
 
 ---
 
-### 19. Missing Type Hints
+### 17. Missing Type Hints
 **Location:** `utils/generate_words.py`
 
 **Problem:** Most functions lack return type hints:
@@ -229,7 +189,7 @@ def generate_word_list(num_words=None, csv_path=None):  # Should be -> List[str]
 
 ---
 
-### 20. Orphaned Code Reference
+### 18. Orphaned Code Reference
 **Location:** `demo_simple_game.py:488`
 
 ```python
@@ -240,7 +200,7 @@ print("To try other demos, check out: demo_llm_game.py")
 
 ---
 
-### 21. Incomplete Dataclass Field
+### 19. Incomplete Dataclass Field
 **Location:** `orchestrator/game_runner.py:31`
 
 ```python
@@ -252,7 +212,7 @@ timestamp: datetime = field(default_factory=datetime.now)
 
 ---
 
-### 22. Potential Confusion in Bomb Handling
+### 20. Potential Confusion in Bomb Handling
 **Location:** `game/state.py:192-198`
 
 ```python
@@ -267,7 +227,7 @@ if last_result.hit_bomb:
 
 ---
 
-### 23. Empty Turn Handling Ambiguity
+### 21. Empty Turn Handling Ambiguity
 **Location:** `orchestrator/game_runner.py:352-356`
 
 ```python
@@ -283,14 +243,14 @@ if not guesses:
 
 ## Code Quality Issues
 
-### 24. Long Methods
+### 22. Long Methods
 **Location:** `orchestrator/game_runner.py:254-423`
 
 **Problem:** `_execute_turn` is 170 lines long with deeply nested logic. Should be refactored into smaller, focused methods.
 
 ---
 
-### 25. Configuration Coupling
+### 23. Configuration Coupling
 **Location:** `config.py:301-310`
 
 ```python
@@ -302,7 +262,7 @@ BLUE_WORDS = default_config.game.BLUE_WORDS
 
 ---
 
-### 26. Inconsistent Naming Conventions
+### 24. Inconsistent Naming Conventions
 **Location:** Multiple files
 
 **Problem:** Mixed naming styles:
@@ -313,7 +273,7 @@ BLUE_WORDS = default_config.game.BLUE_WORDS
 
 ---
 
-### 27. Missing docstrings
+### 25. Missing docstrings
 **Location:** `quick_benchmark.py:345`
 
 ```python
@@ -325,7 +285,7 @@ def run(self) -> QuickBenchmarkResult:
 
 ---
 
-### 28. Dead Code Path in Team Combination Logic
+### 26. Dead Code Path in Team Combination Logic
 **Location:** `quick_benchmark.py:363-376`
 
 ```python
@@ -347,14 +307,14 @@ for blue_hint in BENCHMARK_MODELS:
 
 ## Security Considerations
 
-### 29. API Key Exposure Risk
+### 27. API Key Exposure Risk
 **Location:** `config.py:107-197`
 
 **Problem:** Model costs dictionary includes pricing for models that reference API keys. While keys aren't stored here, the configuration pattern could lead developers to add sensitive data.
 
 ---
 
-### 30. No Input Sanitization for Hint Words
+### 28. No Input Sanitization for Hint Words
 **Location:** `orchestrator/game_runner.py:123-156`
 
 **Problem:** Hint words from LLMs are validated against board words but not sanitized for logging. If an LLM returns malicious content, it could appear in logs.
@@ -363,7 +323,7 @@ for blue_hint in BENCHMARK_MODELS:
 
 ## Documentation Issues
 
-### 31. Outdated Comments
+### 29. Outdated Comments
 **Location:** `baml_src/clients.baml:8, 54, 271, etc.`
 
 ```
@@ -376,7 +336,7 @@ for blue_hint in BENCHMARK_MODELS:
 
 ---
 
-### 32. Misleading Variable Name
+### 30. Misleading Variable Name
 **Location:** `quick_benchmark.py:41`
 
 ```python
@@ -391,19 +351,16 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 
 | Category | Count |
 |----------|-------|
-| Critical | 1 |
-| High Severity | 5 |
+| High Severity | 3 |
 | Medium Severity | 7 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **31** |
+| **Total** | **29** |
 
 ### Priority Recommendations
 
-1. **Immediate:** Add missing dependencies to `requirements.txt`.
-2. **High:** Fix division by zero bugs in benchmark analysis.
-3. **High:** Fix the winner value comparison case mismatch in analysis.
-4. **Medium:** Refactor long methods and add comprehensive error handling.
-5. **Low:** Clean up duplicate code and improve documentation.
+1. **High:** Fix the winner value comparison case mismatch in analysis.
+2. **Medium:** Refactor long methods and add comprehensive error handling.
+3. **Low:** Clean up duplicate code and improve documentation.
