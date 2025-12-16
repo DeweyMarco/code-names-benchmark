@@ -77,7 +77,8 @@ class GameRunner:
         max_turns: Optional[int] = None,
         verbose: Optional[bool] = None,
         game_id: Optional[str] = None,
-        config: Optional[OrchestratorConfig] = None
+        config: Optional[OrchestratorConfig] = None,
+        llm_config: Optional[LLMConfig] = None
     ):
         """
         Initialize game runner.
@@ -92,6 +93,7 @@ class GameRunner:
             verbose: Print game progress (uses config default if None)
             game_id: Optional game identifier
             config: Orchestrator configuration (uses default if None)
+            llm_config: LLM configuration for retry settings (uses default if None)
         """
         self.board = board
         self.game = GameState(board)
@@ -110,6 +112,7 @@ class GameRunner:
         # Use config for defaults
         self.config = config or OrchestratorConfig()
         self.game_config = board.config if hasattr(board, "config") else GameConfig()
+        self.llm_config = llm_config or LLMConfig()
 
         self.max_turns = max_turns if max_turns is not None else self.game_config.MAX_TURNS
         self.verbose = verbose if verbose is not None else self.config.VERBOSE_DEFAULT
@@ -263,8 +266,8 @@ class GameRunner:
         Returns:
             Error message if max retries exceeded, None if successful
         """
-        max_retries = LLMConfig.MAX_RETRIES
-        base_retry_delay = LLMConfig.RETRY_DELAY
+        max_retries = self.llm_config.MAX_RETRIES
+        base_retry_delay = self.llm_config.RETRY_DELAY
         
         for attempt in range(max_retries + 1):  # +1 for initial attempt
             if attempt > 0:

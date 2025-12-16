@@ -4,20 +4,6 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ---
 
-## High Severity Issues
-
-### 4. Hardcoded Retry Parameters
-**Location:** `orchestrator/game_runner.py:267-268`
-
-```python
-max_retries = LLMConfig.MAX_RETRIES
-base_retry_delay = LLMConfig.RETRY_DELAY
-```
-
-**Problem:** While these reference config values, `LLMConfig` is a dataclass with class-level defaults. The values are accessed directly from the class rather than from an instance, making them effectively hardcoded.
-
----
-
 ## Medium Severity Issues
 
 ### 5. Incomplete Error Handling for Guesser Results
@@ -327,16 +313,16 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 
 | Category | Count |
 |----------|-------|
-| High Severity | 1 |
+| High Severity | 0 |
 | Medium Severity | 7 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **27** |
+| **Total** | **26** |
 
 ### Priority Recommendations
 
-1. **High:** Fix the winner value comparison case mismatch in analysis.
+1. **Medium:** Fix the winner value comparison case mismatch in analysis (issue #7).
 2. **Medium:** Refactor long methods and add comprehensive error handling.
 3. **Low:** Clean up duplicate code and improve documentation.
