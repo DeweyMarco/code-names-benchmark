@@ -6,18 +6,6 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## High Severity Issues
 
-### 1. Race Condition Risk in ClientRegistry
-**Location:** `agents/llm/baml_agents.py:149-150, 213-214`
-
-```python
-self._registry = ClientRegistry()
-self._registry.set_primary(model.value)
-```
-
-**Problem:** Each agent creates its own `ClientRegistry` which the code comments acknowledge is "to avoid potential race conditions in parallel benchmarks". However, if multiple agents are created with the same model in rapid succession, there's still a potential race condition between creation and configuration of the registry. The BAML library's thread-safety guarantees aren't documented here.
-
----
-
 ### 4. Hardcoded Retry Parameters
 **Location:** `orchestrator/game_runner.py:267-268`
 
@@ -339,13 +327,13 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 
 | Category | Count |
 |----------|-------|
-| High Severity | 2 |
+| High Severity | 1 |
 | Medium Severity | 7 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **28** |
+| **Total** | **27** |
 
 ### Priority Recommendations
 

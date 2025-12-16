@@ -5,10 +5,14 @@ This module replaces the provider-specific agent files with a single, unified
 implementation that uses BAML for prompt management and structured outputs.
 """
 import logging
+import threading
 from typing import List, Optional
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+
+# Lock for thread-safe ClientRegistry initialization
+_registry_lock = threading.Lock()
 
 from game import Team, CardColor
 from agents.base import HintGiver, Guesser, HintResponse
@@ -145,9 +149,10 @@ class BAMLHintGiver(HintGiver):
         """
         super().__init__(team)
         self.model = model
-        # Create registry once to avoid potential race conditions in parallel benchmarks
-        self._registry = ClientRegistry()
-        self._registry.set_primary(model.value)
+        # Create and configure registry atomically to avoid race conditions in parallel benchmarks
+        with _registry_lock:
+            self._registry = ClientRegistry()
+            self._registry.set_primary(model.value)
 
     def give_hint(
         self,
@@ -209,9 +214,10 @@ class BAMLGuesser(Guesser):
         super().__init__(team)
         self.model = model
         self.guess_history = []  # Track guess results for analysis
-        # Create registry once to avoid potential race conditions in parallel benchmarks
-        self._registry = ClientRegistry()
-        self._registry.set_primary(model.value)
+        # Create and configure registry atomically to avoid race conditions in parallel benchmarks
+        with _registry_lock:
+            self._registry = ClientRegistry()
+            self._registry.set_primary(model.value)
 
     def make_guesses(
         self,
