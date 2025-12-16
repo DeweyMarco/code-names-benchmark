@@ -367,6 +367,7 @@ class GameRunner:
             for guess in guesses:
                 if not isinstance(guess, str):
                     self._log(f"   Skipping non-string guess: {guess}")
+                    self.game.record_invalid_guess(str(guess), "non_string_type")
                     continue
                 guess_lower = guess.lower()
                 if guess_lower in seen:
