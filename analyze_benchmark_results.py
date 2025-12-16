@@ -105,7 +105,7 @@ class BenchmarkAnalyzer:
                     else:
                         model_stats[model_key]['wrong_guesses'] += 1
 
-                        if guess.get('color') == 'BOMB':
+                        if guess.get('color') == 'bomb':
                             model_stats[model_key]['bomb_hits'] += 1
 
             # Update game counts for each role that participated in this game
