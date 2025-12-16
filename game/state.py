@@ -173,12 +173,24 @@ class GameState:
         """End the current turn and switch teams."""
         if self._current_turn is None:
             raise ValueError("Cannot end turn: no turn in progress")
-        
+
         self._turn_history.append(self._current_turn)
         self._current_turn = None
-        
+
         if not self.is_game_over:
             self._current_team = Team.RED if self._current_team == Team.BLUE else Team.BLUE
+
+    def cancel_turn(self):
+        """Cancel the current turn without adding it to history.
+
+        Used when a turn needs to be discarded due to errors during retry logic.
+        This resets the turn state so start_turn() can be called again.
+        """
+        if self._current_turn is None:
+            return  # No turn to cancel, safe to ignore
+
+        self._turn_number -= 1
+        self._current_turn = None
 
     def record_invalid_guess(self, word: str, reason: str):
         """Record an invalid guess for the current turn (e.g., off-board or already revealed)."""

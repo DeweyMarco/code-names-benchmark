@@ -14,26 +14,7 @@ This document contains bugs, errors, and issues identified during a thorough rev
 
 ## Logic Errors
 
-### 1. Guesser retry after turn started corrupts game state
-**File:** `orchestrator/game_runner.py:440-456`
-**Severity:** High
-
-When `_get_guesses_from_agent()` fails after `start_turn()` has been called, the code calls `end_turn()` and then retries. However, this adds a turn with zero guesses to the history, then tries to start a new turn on the retry. This corrupts the turn history and may cause unexpected behavior.
-
-```python
-try:
-    guesses, error = self._get_guesses_from_agent(team, hint.word, hint.count)
-    if error:
-        self.game.end_turn()  # BUG: Turn added to history with no guesses
-        if attempt < max_retries:
-            continue  # Now will try start_turn again, incrementing turn_number
-```
-
-**Fix:** Don't call `end_turn()` on error during retries, or track that the turn needs to be discarded.
-
----
-
-### 2. sort_words_to_codename_groups has misleading behavior
+### 1. sort_words_to_codename_groups has misleading behavior
 **File:** `utils/generate_words.py:65-99`
 **Severity:** Medium
 
@@ -47,7 +28,7 @@ The actual randomization happens in `Board._initialize_board()` which shuffles t
 
 ## Configuration Issues
 
-### 3. Default models reference unverified/non-existent models
+### 2. Default models reference unverified/non-existent models
 **Files:** Multiple locations
 **Severity:** High
 
@@ -65,7 +46,7 @@ These models may not exist or may fail at runtime.
 
 ---
 
-### 4. API key check references non-existent models
+### 3. API key check references non-existent models
 **File:** `quick_benchmark.py:136-142`
 **Severity:** Medium
 
@@ -85,7 +66,7 @@ required_keys = {
 
 ## Design Issues
 
-### 5. process_result should not be abstract
+### 4. process_result should not be abstract
 **File:** `agents/base.py:134-149`
 **Severity:** Medium
 
@@ -111,7 +92,7 @@ def process_result(self, guessed_word: str, was_correct: bool, color: CardColor)
 
 ---
 
-### 6. RESTRICTED_TEMPERATURE_MODELS contains unverified models
+### 5. RESTRICTED_TEMPERATURE_MODELS contains unverified models
 **File:** `model_config.py:60-72`
 **Severity:** Low
 
@@ -123,7 +104,7 @@ The set includes models like `GPT5`, `GPT5_MINI`, `GPT5_NANO`, etc. that don't e
 
 ## Potential Runtime Errors
 
-### 7. Potential IndexError when game_results is empty
+### 6. Potential IndexError when game_results is empty
 **File:** `benchmark_runner.py:248-253`
 **Severity:** Medium
 
@@ -149,7 +130,7 @@ agent_names = {
 
 ---
 
-### 8. BAMLModel enum creation may fail with invalid strings
+### 7. BAMLModel enum creation may fail with invalid strings
 **File:** `analyze_benchmark_results.py:512-513`
 **Severity:** Medium
 
@@ -172,7 +153,7 @@ except ValueError:
 
 ## Minor Issues
 
-### 9. Inconsistent error handling in game_runner retries
+### 8. Inconsistent error handling in game_runner retries
 **File:** `orchestrator/game_runner.py:400-407`
 **Severity:** Low
 
@@ -190,7 +171,7 @@ self._log(f"Will retry in {next_delay} seconds...")  # Also no .1f formatting
 
 ---
 
-### 10. Unused import in model_config.py
+### 9. Unused import in model_config.py
 **File:** `model_config.py:17`
 **Severity:** Low
 
@@ -198,7 +179,7 @@ The file imports `BAMLModel` from `agents.llm` and defines `get_model_display_na
 
 ---
 
-### 11. Missing validation for board_size in custom config
+### 10. Missing validation for board_size in custom config
 **File:** `config.py:50-83`
 **Severity:** Low
 
@@ -216,22 +197,21 @@ neutral_words = board_size - starting_words - other_words - 1  # Could be negati
 
 | # | File | Line | Severity | Description |
 |---|------|------|----------|-------------|
-| 1 | game_runner.py | 440-456 | High | Retry corrupts turn history |
-| 2 | generate_words.py | 65-99 | Medium | Misleading function behavior |
-| 3 | Multiple | - | High | Unverified models as defaults |
-| 4 | quick_benchmark.py | 136-142 | Medium | API check uses non-existent models |
-| 5 | base.py | 134-149 | Medium | Abstract method should be optional |
-| 6 | model_config.py | 60-72 | Low | Unverified models in set |
-| 7 | benchmark_runner.py | 248-253 | Medium | Potential IndexError |
-| 8 | analyze_benchmark_results.py | 512-513 | Medium | BAMLModel construction may fail |
-| 9 | game_runner.py | 395-407 | Low | Inconsistent retry logging |
-| 10 | model_config.py | 17 | Low | Import pattern |
-| 11 | config.py | 50-83 | Low | Missing neutral_words validation |
+| 1 | generate_words.py | 65-99 | Medium | Misleading function behavior |
+| 2 | Multiple | - | High | Unverified models as defaults |
+| 3 | quick_benchmark.py | 136-142 | Medium | API check uses non-existent models |
+| 4 | base.py | 134-149 | Medium | Abstract method should be optional |
+| 5 | model_config.py | 60-72 | Low | Unverified models in set |
+| 6 | benchmark_runner.py | 248-253 | Medium | Potential IndexError |
+| 7 | analyze_benchmark_results.py | 512-513 | Medium | BAMLModel construction may fail |
+| 8 | game_runner.py | 395-407 | Low | Inconsistent retry logging |
+| 9 | model_config.py | 17 | Low | Import pattern |
+| 10 | config.py | 50-83 | Low | Missing neutral_words validation |
 
 ---
 
 ## Recommended Priority
 
-1. **Fix high severity issues (#1, #3)** - These affect reliability
+1. **Fix high severity issue (#2)** - This affects reliability
 2. **Fix medium severity issues** - These may cause problems in edge cases
 3. **Address low severity issues** - Code quality improvements

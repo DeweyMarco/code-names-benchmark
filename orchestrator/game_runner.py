@@ -437,22 +437,24 @@ class GameRunner:
             try:
                 guesses, error = self._get_guesses_from_agent(team, hint.word, hint.count)
                 if error:
-                    self.game.end_turn()  # Clean up
                     if attempt < max_retries:
+                        self.game.cancel_turn()  # Discard turn without adding to history
                         self._log(f"Guesser error: {error}")
                         next_delay = base_retry_delay * (2 ** attempt) + random.uniform(0, 2)
                         self._log(f"Will retry in {next_delay:.1f} seconds...")
                         continue
                     else:
+                        self.game.end_turn()  # Final attempt, add to history
                         return f"Guesser error after {max_retries} retries: {error}"
             except Exception as e:
-                self.game.end_turn()  # Clean up
                 if attempt < max_retries:
+                    self.game.cancel_turn()  # Discard turn without adding to history
                     self._log(f"Guesser exception: {str(e)}")
                     next_delay = base_retry_delay * (2 ** attempt)
                     self._log(f"Will retry in {next_delay} seconds...")
                     continue
                 else:
+                    self.game.end_turn()  # Final attempt, add to history
                     return f"Guesser exception after {max_retries} retries: {str(e)}"
             
             if not guesses:
