@@ -69,9 +69,9 @@ class BenchmarkAnalyzer:
             snapshot = game['snapshot']
             turn_history = snapshot.get('turn_history', [])
             
-            # Determine which team won
-            blue_won = game.get('winner') == 'BLUE'
-            red_won = game.get('winner') == 'RED'
+            # Determine which team won (winner value is lowercase from Team enum)
+            blue_won = game.get('winner') == 'blue'
+            red_won = game.get('winner') == 'red'
             
             # Analyze each turn
             for turn in turn_history:
