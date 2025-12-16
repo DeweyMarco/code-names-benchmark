@@ -6,19 +6,7 @@ This document contains a comprehensive review of the codebase identifying bugs, 
 
 ## High Severity Issues
 
-### 1. Inconsistent Model-to-API-Key Mapping
-**Location:** `demo_simple_game.py:136-137`
-
-```python
-BAMLModel.DEEPSEEK_CHAT: "DEEPSEEK_API_KEY",
-BAMLModel.DEEPSEEK_REASONER: "DEEPSEEK_API_KEY",
-```
-
-**Problem:** The `_check_api_keys` method in `quick_benchmark.py:134-141` only checks for `DEEPSEEK_REASONER` but the system supports both `DEEPSEEK_CHAT` and `DEEPSEEK_REASONER`. If someone uses `DEEPSEEK_CHAT`, the key check won't validate it.
-
----
-
-### 3. Race Condition Risk in ClientRegistry
+### 1. Race Condition Risk in ClientRegistry
 **Location:** `agents/llm/baml_agents.py:149-150, 213-214`
 
 ```python
@@ -351,13 +339,13 @@ GAMES_PER_COMBINATION = 2  # Reduced for quick results
 
 | Category | Count |
 |----------|-------|
-| High Severity | 3 |
+| High Severity | 2 |
 | Medium Severity | 7 |
 | Low Severity | 10 |
 | Code Quality | 5 |
 | Security | 2 |
 | Documentation | 2 |
-| **Total** | **29** |
+| **Total** | **28** |
 
 ### Priority Recommendations
 

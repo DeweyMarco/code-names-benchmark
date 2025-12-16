@@ -136,6 +136,7 @@ class QuickBenchmarkRunner:
             BAMLModel.GPT5: ["OPENAI_API_KEY"],
             BAMLModel.GEMINI_25_PRO: ["GOOGLE_API_KEY"],
             BAMLModel.CLAUDE_HAIKU_45: ["ANTHROPIC_API_KEY"],
+            BAMLModel.DEEPSEEK_CHAT: ["DEEPSEEK_API_KEY"],
             BAMLModel.DEEPSEEK_REASONER: ["DEEPSEEK_API_KEY"],
             BAMLModel.GROK4: ["XAI_API_KEY"],
         }
