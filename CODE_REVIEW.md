@@ -12,71 +12,7 @@ This document contains bugs, errors, and issues identified during a thorough rev
 
 ---
 
-## Configuration Issues
-
-### 2. Default models reference unverified/non-existent models
-**Files:** Multiple locations
-**Severity:** High
-
-Several files default to models marked as "UNVERIFIED" in `baml_agents.py`:
-
-- `demo_simple_game.py:59-62`: Uses `BAMLModel.GEMINI_25_FLASH` (unverified)
-- `quick_benchmark.py:400`: Uses `BAMLModel.GPT5`, `BAMLModel.GEMINI_25_PRO`, `BAMLModel.CLAUDE_HAIKU_45` (unverified)
-- `baml_agents.py:282`: Default for anthropic is `CLAUDE_HAIKU_45` (unverified)
-- `baml_agents.py:290`: Default for google is `GEMINI_25_FLASH` (unverified)
-- `config.py:105`: `ANTHROPIC_DEFAULT_MODEL = "claude-sonnet-4-5-20250929"` (unverified)
-
-These models may not exist or may fail at runtime.
-
-**Fix:** Change defaults to verified models like `GPT4O_MINI`, `CLAUDE_HAIKU_35`, `GEMINI_20_FLASH`.
-
----
-
-### 3. API key check references non-existent models
-**File:** `quick_benchmark.py:136-142`
-**Severity:** Medium
-
-The `_check_api_keys()` method checks for API keys based on models that may not exist:
-```python
-required_keys = {
-    BAMLModel.GPT5: ["OPENAI_API_KEY"],           # GPT5 doesn't exist
-    BAMLModel.GEMINI_25_PRO: ["GOOGLE_API_KEY"],  # Unverified
-    BAMLModel.CLAUDE_HAIKU_45: ["ANTHROPIC_API_KEY"],  # Unverified
-    ...
-}
-```
-
-**Fix:** Update to match `get_benchmark_models()` or use verified models.
-
----
-
 ## Design Issues
-
-### 4. process_result should not be abstract
-**File:** `agents/base.py:134-149`
-**Severity:** Medium
-
-`process_result` is marked as `@abstractmethod` but the docstring says "Not required to do anything (default implementation can pass)". This forces all subclasses to implement it even when not needed.
-
-```python
-@abstractmethod
-def process_result(self, guessed_word: str, was_correct: bool, color: CardColor):
-    """
-    ...
-    Notes:
-        - Not required to do anything (default implementation can pass)  # Contradicts @abstractmethod
-    """
-    pass
-```
-
-**Fix:** Remove `@abstractmethod` and provide a default empty implementation:
-```python
-def process_result(self, guessed_word: str, was_correct: bool, color: CardColor):
-    """Optional feedback method. Override if needed."""
-    pass
-```
-
----
 
 ### 5. RESTRICTED_TEMPERATURE_MODELS contains unverified models
 **File:** `model_config.py:60-72`
@@ -183,9 +119,6 @@ neutral_words = board_size - starting_words - other_words - 1  # Could be negati
 
 | # | File | Line | Severity | Description |
 |---|------|------|----------|-------------|
-| 2 | Multiple | - | High | Unverified models as defaults |
-| 3 | quick_benchmark.py | 136-142 | Medium | API check uses non-existent models |
-| 4 | base.py | 134-149 | Medium | Abstract method should be optional |
 | 5 | model_config.py | 60-72 | Low | Unverified models in set |
 | 6 | benchmark_runner.py | 248-253 | Medium | Potential IndexError |
 | 7 | analyze_benchmark_results.py | 512-513 | Medium | BAMLModel construction may fail |
@@ -197,6 +130,5 @@ neutral_words = board_size - starting_words - other_words - 1  # Could be negati
 
 ## Recommended Priority
 
-1. **Fix high severity issue (#2)** - This affects reliability
-2. **Fix medium severity issues** - These may cause problems in edge cases
-3. **Address low severity issues** - Code quality improvements
+1. **Fix medium severity issues** - These may cause problems in edge cases
+2. **Address low severity issues** - Code quality improvements

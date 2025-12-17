@@ -131,10 +131,9 @@ class Guesser(ABC):
         """
         pass
     
-    @abstractmethod
     def process_result(self, guessed_word: str, was_correct: bool, color: CardColor):
         """
-        Receive feedback on a guess (optional for learning/adjustment).
+        Optional feedback method. Override if needed.
 
         Args:
             guessed_word: The word that was guessed
@@ -144,7 +143,6 @@ class Guesser(ABC):
         Notes:
             - This is called after each guess
             - Agents can use this to adjust their strategy
-            - Not required to do anything (default implementation can pass)
         """
         pass
 
