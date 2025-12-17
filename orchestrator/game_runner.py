@@ -400,8 +400,8 @@ class GameRunner:
             except Exception as e:
                 if attempt < max_retries:
                     self._log(f"Hint giver exception: {str(e)}")
-                    next_delay = base_retry_delay * (2 ** attempt)
-                    self._log(f"Will retry in {next_delay} seconds...")
+                    next_delay = base_retry_delay * (2 ** attempt) + random.uniform(0, 2)
+                    self._log(f"Will retry in {next_delay:.1f} seconds...")
                     continue
                 else:
                     return f"Hint giver exception after {max_retries} retries: {str(e)}"

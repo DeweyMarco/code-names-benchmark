@@ -13,25 +13,7 @@ This document contains bugs, errors, and issues identified during a thorough rev
 
 ## Minor Issues
 
-### 8. Inconsistent error handling in game_runner retries
-**File:** `orchestrator/game_runner.py:400-407`
-**Severity:** Low
-
-The retry delay logging is inconsistent - sometimes includes jitter (`+ random.uniform(0, 2)`) and sometimes doesn't:
-
-```python
-next_delay = base_retry_delay * (2 ** attempt) + random.uniform(0, 2)  # Line 395
-self._log(f"Will retry in {next_delay:.1f} seconds...")
-
-next_delay = base_retry_delay * (2 ** attempt)  # Line 403 - no jitter
-self._log(f"Will retry in {next_delay} seconds...")  # Also no .1f formatting
-```
-
-**Fix:** Make consistent.
-
----
-
-### 9. Unused import in model_config.py
+### 8. Unused import in model_config.py
 **File:** `model_config.py:17`
 **Severity:** Low
 
@@ -39,7 +21,7 @@ The file imports `BAMLModel` from `agents.llm` and defines `get_model_display_na
 
 ---
 
-### 10. Missing validation for board_size in custom config
+### 9. Missing validation for board_size in custom config
 **File:** `config.py:50-83`
 **Severity:** Low
 
@@ -57,9 +39,8 @@ neutral_words = board_size - starting_words - other_words - 1  # Could be negati
 
 | # | File | Line | Severity | Description |
 |---|------|------|----------|-------------|
-| 8 | game_runner.py | 395-407 | Low | Inconsistent retry logging |
-| 9 | model_config.py | 17 | Low | Import pattern |
-| 10 | config.py | 50-83 | Low | Missing neutral_words validation |
+| 8 | model_config.py | 17 | Low | Import pattern |
+| 9 | config.py | 50-83 | Low | Missing neutral_words validation |
 
 ---
 
