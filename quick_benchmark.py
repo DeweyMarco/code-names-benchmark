@@ -27,6 +27,16 @@ from utils import generate_word_list
 from config import Config
 from model_config import get_benchmark_models, get_model_display_name
 
+
+def safe_get_model_display_name(model_string: str) -> str:
+    """Safely convert a model string to display name, with fallback to raw string."""
+    try:
+        model = BAMLModel(model_string)
+        return get_model_display_name(model)
+    except ValueError:
+        return model_string
+
+
 # Load environment variables
 load_dotenv()
 
@@ -509,8 +519,8 @@ class QuickBenchmarkRunner:
         )[:10]
         
         for i, (key, combo) in enumerate(sorted_combos, 1):
-            blue_team = f"{get_model_display_name(BAMLModel(combo['blue_hint_giver']))}+{get_model_display_name(BAMLModel(combo['blue_guesser']))}"
-            red_team = f"{get_model_display_name(BAMLModel(combo['red_hint_giver']))}+{get_model_display_name(BAMLModel(combo['red_guesser']))}"
+            blue_team = f"{safe_get_model_display_name(combo['blue_hint_giver'])}+{safe_get_model_display_name(combo['blue_guesser'])}"
+            red_team = f"{safe_get_model_display_name(combo['red_hint_giver'])}+{safe_get_model_display_name(combo['red_guesser'])}"
             blue_win_rate = combo['blue_wins'] / max(combo['games_played'], 1)
             avg_turns = combo['total_turns'] / max(combo['games_played'], 1)
             
