@@ -10,47 +10,8 @@
 
 This document contains bugs, errors, and issues identified during a thorough review of the Codenames AI benchmark codebase. Issues are categorized by severity.
 
----
-
-## Design Issues
-
-### 5. RESTRICTED_TEMPERATURE_MODELS contains unverified models
-**File:** `model_config.py:60-72`
-**Severity:** Low
-
-The set includes models like `GPT5`, `GPT5_MINI`, `GPT5_NANO`, etc. that don't exist. While this won't cause immediate errors, it's misleading.
-
-**Fix:** Only include verified models or clearly document which are speculative.
-
----
 
 ## Potential Runtime Errors
-
-### 6. Potential IndexError when game_results is empty
-**File:** `benchmark_runner.py:248-253`
-**Severity:** Medium
-
-The code accesses `game_results[0]` without checking if the list is empty:
-
-```python
-agent_names = {
-    'blue_hint_giver': game_results[0].blue_hint_giver_name,  # IndexError if empty
-    ...
-}
-```
-
-**Fix:** Add empty check:
-```python
-if not game_results:
-    return BenchmarkResult(...)  # Handle empty case
-
-agent_names = {
-    'blue_hint_giver': game_results[0].blue_hint_giver_name,
-    ...
-}
-```
-
----
 
 ### 7. BAMLModel enum creation may fail with invalid strings
 **File:** `analyze_benchmark_results.py:512-513`
@@ -119,8 +80,6 @@ neutral_words = board_size - starting_words - other_words - 1  # Could be negati
 
 | # | File | Line | Severity | Description |
 |---|------|------|----------|-------------|
-| 5 | model_config.py | 60-72 | Low | Unverified models in set |
-| 6 | benchmark_runner.py | 248-253 | Medium | Potential IndexError |
 | 7 | analyze_benchmark_results.py | 512-513 | Medium | BAMLModel construction may fail |
 | 8 | game_runner.py | 395-407 | Low | Inconsistent retry logging |
 | 9 | model_config.py | 17 | Low | Import pattern |

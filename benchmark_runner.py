@@ -245,12 +245,20 @@ class BenchmarkRunner:
         benchmark_id = f"benchmark_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
         # Get agent names (from first game)
-        agent_names = {
-            'blue_hint_giver': game_results[0].blue_hint_giver_name,
-            'blue_guesser': game_results[0].blue_guesser_name,
-            'red_hint_giver': game_results[0].red_hint_giver_name,
-            'red_guesser': game_results[0].red_guesser_name
-        }
+        if game_results:
+            agent_names = {
+                'blue_hint_giver': game_results[0].blue_hint_giver_name,
+                'blue_guesser': game_results[0].blue_guesser_name,
+                'red_hint_giver': game_results[0].red_hint_giver_name,
+                'red_guesser': game_results[0].red_guesser_name
+            }
+        else:
+            agent_names = {
+                'blue_hint_giver': 'unknown',
+                'blue_guesser': 'unknown',
+                'red_hint_giver': 'unknown',
+                'red_guesser': 'unknown'
+            }
 
         benchmark_result = BenchmarkResult(
             benchmark_id=benchmark_id,
