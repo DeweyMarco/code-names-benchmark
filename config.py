@@ -69,6 +69,12 @@ class GameConfig:
         other_words = starting_words - 1
         neutral_words = board_size - starting_words - other_words - 1  # -1 for bomb
 
+        if neutral_words < 0:
+            raise ValueError(
+                f"Board size {board_size} is too small for the calculated word distribution. "
+                f"Neutral words would be {neutral_words}."
+            )
+
         return cls(
             BOARD_SIZE=board_size,
             BLUE_WORDS=starting_words if starting_team == "BLUE" else other_words,
