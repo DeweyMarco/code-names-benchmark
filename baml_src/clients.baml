@@ -517,3 +517,98 @@ client<llm> Llama {
     temperature 0.7
   }
 }
+
+// ============================================================================
+// OPENROUTER CLIENTS (Verified Free Models)
+// ============================================================================
+// OpenRouter provides access to many models via a unified API
+// See available models at: https://openrouter.ai/models?q=free
+
+// Mistral Devstral (Free tier) - Verified working
+client<llm> OpenRouterDevstral {
+  provider openai
+  options {
+    model "mistralai/devstral-2512:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+
+// Xiaomi MIMO V2 Flash (Free tier - Reasoning model) - Verified working
+client<llm> OpenRouterMimoV2Flash {
+  provider openai
+  options {
+    model "xiaomi/mimo-v2-flash:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+
+// NVIDIA Nemotron Nano 12B V2 VL (Free tier - Vision-Language model) - Verified working
+client<llm> OpenRouterNemotronNano {
+  provider openai
+  options {
+    model "nvidia/nemotron-nano-12b-v2-vl:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+
+// TNG Technology DeepSeek R1T Chimera (Free tier - Reasoning model) - Verified working
+client<llm> OpenRouterDeepSeekR1TChimera {
+  provider openai
+  options {
+    model "tngtech/deepseek-r1t-chimera:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+
+// TNG Technology DeepSeek R1T2 Chimera (Free tier - Reasoning model) - Verified working
+client<llm> OpenRouterDeepSeekR1T2Chimera {
+  provider openai
+  options {
+    model "tngtech/deepseek-r1t2-chimera:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+
+// Z-AI GLM 4.5 Air (Free tier) - Verified working
+client<llm> OpenRouterGLM45Air {
+  provider openai
+  options {
+    model "z-ai/glm-4.5-air:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+
+// Meta Llama 3.3 70B Instruct (Free tier) - Verified working
+client<llm> OpenRouterLlama33_70B {
+  provider openai
+  options {
+    model "meta-llama/llama-3.3-70b-instruct:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+
+// Qwen 3 235B A22B (Free tier) - Verified working
+client<llm> OpenRouterQwen3_235B {
+  provider openai
+  options {
+    model "qwen/qwen3-235b-a22b:free"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    temperature 0.7
+  }
+}
+

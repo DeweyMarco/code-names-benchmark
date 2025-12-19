@@ -40,6 +40,16 @@ MODEL_CONFIGS = {
 
     # Llama models - supports custom temperature
     BAMLModel.LLAMA: {"temperature": 0.7},
+
+    # OpenRouter models - supports custom temperature
+    BAMLModel.OPENROUTER_DEVSTRAL: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_MIMO_V2_FLASH: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_NEMOTRON_NANO: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_DEEPSEEK_R1T_CHIMERA: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_DEEPSEEK_R1T2_CHIMERA: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_GLM_45_AIR: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_LLAMA_33_70B: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_QWEN3_235B: {"temperature": 0.7},
 }
 
 def get_model_config(model: BAMLModel) -> Dict[str, Any]:
@@ -152,5 +162,14 @@ def get_model_display_name(model: BAMLModel) -> str:
         BAMLModel.DEEPSEEK_REASONER: "DeepSeek Reasoner",
         # Meta Llama
         BAMLModel.LLAMA: "Llama 3 70B",
+        # OpenRouter (Free models - verified)
+        BAMLModel.OPENROUTER_DEVSTRAL: "Devstral (OpenRouter)",
+        BAMLModel.OPENROUTER_MIMO_V2_FLASH: "MIMO V2 Flash (OpenRouter)",
+        BAMLModel.OPENROUTER_NEMOTRON_NANO: "Nemotron Nano 12B (OpenRouter)",
+        BAMLModel.OPENROUTER_DEEPSEEK_R1T_CHIMERA: "DeepSeek R1T Chimera (OpenRouter)",
+        BAMLModel.OPENROUTER_DEEPSEEK_R1T2_CHIMERA: "DeepSeek R1T2 Chimera (OpenRouter)",
+        BAMLModel.OPENROUTER_GLM_45_AIR: "GLM 4.5 Air (OpenRouter)",
+        BAMLModel.OPENROUTER_LLAMA_33_70B: "Llama 3.3 70B (OpenRouter)",
+        BAMLModel.OPENROUTER_QWEN3_235B: "Qwen 3 235B (OpenRouter)",
     }
     return display_names.get(model, model.value)

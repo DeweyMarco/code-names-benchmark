@@ -32,11 +32,21 @@ Anthropic:
 Google:
   - Gemini 2.5: GEMINI_25_PRO, GEMINI_25_FLASH, GEMINI_25_FLASH_LITE
   - Gemini 2.0: GEMINI_20_FLASH, GEMINI_20_FLASH_LITE
-DeepSeek: DEEPSEEK_CHAT, DEEPSEEK_REASONER
+DeepSeek: 
+  - DEEPSEEK_CHAT
+  - DEEPSEEK_REASONER
 xAI Grok:
   - Grok 4: GROK4, GROK4_FAST_REASONING, GROK4_FAST_NON_REASONING
   - Grok 3: GROK3, GROK3_FAST, GROK3_MINI, GROK3_MINI_FAST
-Meta: LLAMA
+OpenRouter:
+  - Mistral: OPENROUTER_DEVSTRAL (Free)
+  - MIMO: OPENROUTER_MIMO_V2_FLASH (Free)
+  - Nemotron: OPENROUTER_NEMOTRON_NANO (Free)
+  - DeepSeek R1T Chimera: OPENROUTER_DEEPSEEK_R1T_CHIMERA (Free)
+  - DeepSeek R1T2 Chimera: OPENROUTER_DEEPSEEK_R1T2_CHIMERA (Free)
+  - GLM 4.5 Air: OPENROUTER_GLM_45_AIR (Free)
+  - Llama 3.3 70B: OPENROUTER_LLAMA_33_70B (Free)
+  - Qwen 3 235B: OPENROUTER_QWEN3_235B (Free)
 """
 
 import os
@@ -56,10 +66,11 @@ load_dotenv()
 # CONFIGURE YOUR MODELS HERE - Just change these to try different AI models!
 # ============================================================================
 class Players:
-    RED_HINT_GIVER = BAMLModel.GEMINI_25_FLASH
-    RED_GUESSER = BAMLModel.GEMINI_25_FLASH
-    BLUE_HINT_GIVER = BAMLModel.GEMINI_25_FLASH
-    BLUE_GUESSER = BAMLModel.GEMINI_25_FLASH
+    # Using verified free OpenRouter models
+    BLUE_HINT_GIVER = BAMLModel.OPENROUTER_DEVSTRAL    
+    BLUE_GUESSER = BAMLModel.OPENROUTER_MIMO_V2_FLASH     
+    RED_HINT_GIVER = BAMLModel.OPENROUTER_QWEN3_235B     
+    RED_GUESSER = BAMLModel.OPENROUTER_NEMOTRON_NANO        
 
 # ANSI color codes
 class Colors:
@@ -146,6 +157,15 @@ MODEL_TO_API_KEY = {
     BAMLModel.GROK3_MINI_FAST: "XAI_API_KEY",
     # Meta Llama (via Together AI)
     BAMLModel.LLAMA: "TOGETHER_API_KEY",
+    # OpenRouter (Free models - verified working)
+    BAMLModel.OPENROUTER_DEVSTRAL: "OPENROUTER_API_KEY",
+    BAMLModel.OPENROUTER_MIMO_V2_FLASH: "OPENROUTER_API_KEY",
+    BAMLModel.OPENROUTER_NEMOTRON_NANO: "OPENROUTER_API_KEY",
+    BAMLModel.OPENROUTER_DEEPSEEK_R1T_CHIMERA: "OPENROUTER_API_KEY",
+    BAMLModel.OPENROUTER_DEEPSEEK_R1T2_CHIMERA: "OPENROUTER_API_KEY",
+    BAMLModel.OPENROUTER_GLM_45_AIR: "OPENROUTER_API_KEY",
+    BAMLModel.OPENROUTER_LLAMA_33_70B: "OPENROUTER_API_KEY",
+    BAMLModel.OPENROUTER_QWEN3_235B: "OPENROUTER_API_KEY",
 }
 
 
@@ -253,6 +273,8 @@ def main():
             print("     • xAI (Grok): https://console.x.ai/")
         if "TOGETHER_API_KEY" in unique_keys:
             print("     • Together AI (for Llama): https://api.together.xyz/")
+        if "OPENROUTER_API_KEY" in unique_keys:
+            print("     • OpenRouter: https://openrouter.ai/keys")
 
         print(f"\n  3. Add the key(s) to your .env file:")
         for key in sorted(unique_keys):

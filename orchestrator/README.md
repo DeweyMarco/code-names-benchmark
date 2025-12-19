@@ -18,13 +18,13 @@ from orchestrator import GameRunner
 words = generate_word_list(25)
 board = Board(words)
 
-# Run game
+# Run game (use any model - OpenRouter free models work great!)
 runner = GameRunner(
     board=board,
-    blue_hint_giver=BAMLHintGiver(Team.BLUE, BAMLModel.GPT4O_MINI),
-    blue_guesser=BAMLGuesser(Team.BLUE, BAMLModel.GPT4O_MINI),
-    red_hint_giver=BAMLHintGiver(Team.RED, BAMLModel.CLAUDE_SONNET_45),
-    red_guesser=BAMLGuesser(Team.RED, BAMLModel.CLAUDE_SONNET_45),
+    blue_hint_giver=BAMLHintGiver(Team.BLUE, BAMLModel.OPENROUTER_DEVSTRAL),
+    blue_guesser=BAMLGuesser(Team.BLUE, BAMLModel.OPENROUTER_MIMO_V2_FLASH),
+    red_hint_giver=BAMLHintGiver(Team.RED, BAMLModel.OPENROUTER_NEMOTRON_NANO),
+    red_guesser=BAMLGuesser(Team.RED, BAMLModel.OPENROUTER_DEEPSEEK_R1T_CHIMERA),
     verbose=True,
     game_id="game_001"
 )

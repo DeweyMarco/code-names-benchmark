@@ -2,10 +2,10 @@
 
 An AI benchmark where 4 language models play Codenames: two hint givers (spymasters) and two guessers (field operatives) competing as red and blue teams.
 
-## 🎯 Features
+## Features
 
 - **BAML-powered agents** - Universal LLM agents with type-safe structured outputs
-- **Multiple providers** - OpenAI, Anthropic, Google Gemini, xAI Grok, DeepSeek
+- **Multiple providers** - OpenAI, Anthropic, Google Gemini, xAI Grok, DeepSeek, OpenRouter (free models!)
 - **Interactive playground** - Test prompts in VSCode without running full games
 - **Configurable** - Adjust board size, rules, validation, and more
 - **Benchmark suite** - Run multiple games and collect statistics
@@ -35,6 +35,7 @@ python3 demo_simple_game.py
 ## API Keys
 
 Get your API key from:
+- **OpenRouter**: [openrouter.ai/keys](https://openrouter.ai/keys) (many free models!)
 - **OpenAI**: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 - **Anthropic**: [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
 - **Google Gemini**: [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) (free tier available!)
@@ -69,6 +70,7 @@ guesser = BAMLGuesser(Team.RED, model=BAMLModel.CLAUDE_SONNET_45)
 # xAI Grok 4: GROK4, GROK4_FAST_REASONING, GROK4_FAST_NON_REASONING
 # xAI Grok 3: GROK3, GROK3_FAST, GROK3_MINI, GROK3_MINI_FAST
 # Meta: LLAMA
+# OpenRouter: OPENROUTER_DEVSTRAL, OPENROUTER_MIMO_V2_FLASH, OPENROUTER_DEEPSEEK_R1T_CHIMERA, OPENROUTER_DEEPSEEK_R1T2_CHIMERA, OPENROUTER_GLM_45_AIR, OPENROUTER_LLAMA_33_70B, OPENROUTER_QWEN3_235B
 ```
 
 ### Why BAML?
@@ -185,6 +187,7 @@ Approximate costs per game:
 
 | Model | Cost/Game | Best For |
 |-------|-----------|----------|
+| `OPENROUTER_*` (free tier) | **$0.00** | Free experimentation! |
 | `GEMINI_25_FLASH_LITE` | ~$0.001 | Fastest, cost-efficient |
 | `DEEPSEEK_CHAT` | ~$0.002 | Most cost-effective |
 | `DEEPSEEK_REASONER` | ~$0.002 | Cost-effective with reasoning |
@@ -197,7 +200,8 @@ Approximate costs per game:
 | `CLAUDE_OPUS_41` | ~$0.30 | Most powerful Claude |
 
 **Tips:**
-- Start with Gemini 2.5 Flash or GPT-4o-mini (cheap)
+- Start with OpenRouter free models for zero-cost experimentation
+- Or try Gemini 2.5 Flash or GPT-4o-mini (cheap)
 - Set API spending limits in provider dashboards
 - Use random agents first to test setup (free)
 

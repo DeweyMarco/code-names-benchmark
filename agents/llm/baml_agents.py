@@ -79,6 +79,16 @@ class BAMLModel(Enum):
     # Meta Llama (via Together AI or similar) - VERIFIED
     LLAMA = "Llama"
 
+    # OpenRouter - Free Models - VERIFIED WORKING
+    OPENROUTER_DEVSTRAL = "OpenRouterDevstral"
+    OPENROUTER_MIMO_V2_FLASH = "OpenRouterMimoV2Flash"
+    OPENROUTER_NEMOTRON_NANO = "OpenRouterNemotronNano"
+    OPENROUTER_DEEPSEEK_R1T_CHIMERA = "OpenRouterDeepSeekR1TChimera"
+    OPENROUTER_DEEPSEEK_R1T2_CHIMERA = "OpenRouterDeepSeekR1T2Chimera"
+    OPENROUTER_GLM_45_AIR = "OpenRouterGLM45Air"
+    OPENROUTER_LLAMA_33_70B = "OpenRouterLlama33_70B"
+    OPENROUTER_QWEN3_235B = "OpenRouterQwen3_235B"
+
     # ==========================================================================
     # UNVERIFIED/PLANNED MODELS - May not be available; test before use
     # ==========================================================================
