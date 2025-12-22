@@ -4,34 +4,6 @@ This document outlines bugs and issues discovered during code review of the benc
 
 ---
 
-## Critical Bugs
-
-### 1. String Formatting Error Will Crash
-
-**Location:** Lines 1292-1294
-
-```python
-insights.append(f"- **Blue (First-Mover) Win Rate**: {fma['overall_blue_win_rate']:.1%} "
-               f"({'statistically significant' if fma['advantage_significant'] else 'not significant'}, "
-               f"p={fma['p_value']:.4f})" if fma['p_value'] else f"({fma['advantage_magnitude']} advantage)")
-```
-
-**Problem:** The ternary operator placement is incorrect. When `p_value` is `None`, Python first evaluates `fma['p_value']:.4f`, which throws a `TypeError` before the conditional branch is reached.
-
-**Fix:**
-```python
-if fma['p_value'] is not None:
-    p_str = f"p={fma['p_value']:.4f}"
-    sig_str = 'statistically significant' if fma['advantage_significant'] else 'not significant'
-    insights.append(f"- **Blue (First-Mover) Win Rate**: {fma['overall_blue_win_rate']:.1%} ({sig_str}, {p_str})")
-else:
-    insights.append(f"- **Blue (First-Mover) Win Rate**: {fma['overall_blue_win_rate']:.1%} ({fma['advantage_magnitude']} advantage)")
-```
-
-**Impact:** Script crashes when `p_value` is `None`.
-
----
-
 ## Medium Severity Bugs
 
 ### 2. Double `clean_model_name` Call
@@ -133,7 +105,6 @@ except (ValueError, TypeError, AttributeError) as e:
 
 | Bug | Severity | Impact |
 |-----|----------|--------|
-| p_value formatting crash | Critical | Script crashes on certain data |
 | Double `clean_model_name` | Medium | Inefficiency, possible inconsistency |
 | Zero win rate versatility | Medium | Misleading metric |
 | Draws in win rate denominator | Medium | Deflated win rates |
@@ -144,5 +115,5 @@ except (ValueError, TypeError, AttributeError) as e:
 
 ## Recommended Priority
 
-1. **Fix p_value formatting** - Prevent crash
-2. **Clean up redundant code** - Single source for display names
+1. **Clean up redundant code** - Single source for display names
+2. **Fix double clean_model_name call** - Prevent inefficiency

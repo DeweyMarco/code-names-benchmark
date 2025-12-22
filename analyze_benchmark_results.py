@@ -1343,9 +1343,12 @@ class BenchmarkAnalyzer:
 
         # First mover advantage
         fma = self.analyze_first_mover_advantage()
-        insights.append(f"- **Blue (First-Mover) Win Rate**: {fma['overall_blue_win_rate']:.1%} "
-                       f"({'statistically significant' if fma['advantage_significant'] else 'not significant'}, "
-                       f"p={fma['p_value']:.4f})" if fma['p_value'] else f"({fma['advantage_magnitude']} advantage)")
+        if fma['p_value'] is not None:
+            p_str = f"p={fma['p_value']:.4f}"
+            sig_str = 'statistically significant' if fma['advantage_significant'] else 'not significant'
+            insights.append(f"- **Blue (First-Mover) Win Rate**: {fma['overall_blue_win_rate']:.1%} ({sig_str}, {p_str})")
+        else:
+            insights.append(f"- **Blue (First-Mover) Win Rate**: {fma['overall_blue_win_rate']:.1%} ({fma['advantage_magnitude']} advantage)")
 
         # Momentum summary
         momentum = self.get_momentum_summary()
