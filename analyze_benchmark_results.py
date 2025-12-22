@@ -19,8 +19,101 @@ import warnings
 from model_config import get_model_display_name, BAMLModel
 
 # Model display names - should match the actual models used in benchmarks
-# This maps internal model identifiers to display names
-MODEL_DISPLAY_NAMES = {}
+# Maps internal model identifiers (e.g., "GPT4oMini", "OpenRouterDevstral") to display names
+MODEL_DISPLAY_NAMES = {
+    # OpenAI GPT-4o Series
+    "GPT4o": "GPT-4o",
+    "GPT4oMini": "GPT-4o Mini",
+    "GPT4o_20240806": "GPT-4o (2024-08-06)",
+    "GPT4oMini_20240718": "GPT-4o Mini (2024-07-18)",
+    # OpenAI GPT-4 Turbo Series
+    "GPT4Turbo": "GPT-4 Turbo",
+    "GPT4TurboPreview": "GPT-4 Turbo Preview",
+    "GPT4_0125Preview": "GPT-4 (0125-preview)",
+    "GPT4_1106Preview": "GPT-4 (1106-preview)",
+    # OpenAI GPT-4 Base Series
+    "GPT4": "GPT-4",
+    "GPT4_32k": "GPT-4 32K",
+    "GPT4_0613": "GPT-4 (0613)",
+    # OpenAI GPT-3.5 Series
+    "GPT35Turbo": "GPT-3.5 Turbo",
+    "GPT35Turbo16k": "GPT-3.5 Turbo 16K",
+    "GPT35TurboInstruct": "GPT-3.5 Turbo Instruct",
+    # OpenAI Reasoning Models
+    "O1": "o1",
+    "O1Mini": "o1-mini",
+    "O1Preview": "o1-preview",
+    "O3": "o3",
+    "O3Mini": "o3-mini",
+    "O4Mini": "o4-mini",
+    # OpenAI GPT-5 Series (unverified)
+    "GPT5": "GPT-5",
+    "GPT5Mini": "GPT-5 Mini",
+    "GPT5Nano": "GPT-5 Nano",
+    "GPT5Chat": "GPT-5 Chat",
+    "GPT5Pro": "GPT-5 Pro",
+    # OpenAI GPT-4.1 Series (unverified)
+    "GPT41": "GPT-4.1",
+    "GPT41Mini": "GPT-4.1 Mini",
+    "GPT41Nano": "GPT-4.1 Nano",
+    # Anthropic Claude Series
+    "ClaudeSonnet45": "Claude Sonnet 4.5",
+    "ClaudeHaiku45": "Claude Haiku 4.5",
+    "ClaudeOpus41": "Claude Opus 4.1",
+    "ClaudeSonnet4": "Claude Sonnet 4",
+    "ClaudeOpus4": "Claude Opus 4",
+    "ClaudeSonnet37": "Claude Sonnet 3.7",
+    "ClaudeHaiku35": "Claude Haiku 3.5",
+    "ClaudeHaiku3": "Claude 3 Haiku",
+    # Google Gemini Series
+    "Gemini25Pro": "Gemini 2.5 Pro",
+    "Gemini25Flash": "Gemini 2.5 Flash",
+    "Gemini25FlashLite": "Gemini 2.5 Flash Lite",
+    "Gemini20Flash": "Gemini 2.0 Flash",
+    "Gemini20FlashLite": "Gemini 2.0 Flash Lite",
+    # DeepSeek Series
+    "DeepSeekChat": "DeepSeek Chat",
+    "DeepSeekReasoner": "DeepSeek Reasoner",
+    # Meta Llama
+    "Llama": "Llama 3 70B",
+    # xAI Grok Series
+    "Grok4": "Grok 4",
+    "Grok4FastReasoning": "Grok 4 Fast Reasoning",
+    "Grok4FastNonReasoning": "Grok 4 Fast",
+    "Grok3": "Grok 3",
+    "Grok3Fast": "Grok 3 Fast",
+    "Grok3Mini": "Grok 3 Mini",
+    "Grok3MiniFast": "Grok 3 Mini Fast",
+    # OpenRouter (Free models)
+    "OpenRouterDevstral": "Devstral",
+    "OpenRouterMimoV2Flash": "MIMO V2 Flash",
+    "OpenRouterNemotronNano": "Nemotron Nano",
+    "OpenRouterDeepSeekR1TChimera": "DeepSeek R1T Chimera",
+    "OpenRouterDeepSeekR1T2Chimera": "DeepSeek R1T2 Chimera",
+    "OpenRouterGLM45Air": "GLM 4.5 Air",
+    "OpenRouterLlama33_70B": "Llama 3.3 70B",
+    "OpenRouterOLMo3_32B": "OLMo 3.1 32B",
+}
+
+def clean_model_name(name: str) -> str:
+    """Convert internal model names to human-readable display names.
+
+    Looks up the name in MODEL_DISPLAY_NAMES first, then falls back to
+    basic cleanup (removing 'OpenRouter' prefix).
+
+    E.g., 'GPT4oMini' -> 'GPT-4o Mini'
+          'OpenRouterDevstral' -> 'Devstral'
+          'ClaudeHaiku35' -> 'Claude Haiku 3.5'
+    """
+    if not name:
+        return name
+    # First try exact lookup in display names
+    if name in MODEL_DISPLAY_NAMES:
+        return MODEL_DISPLAY_NAMES[name]
+    # Fallback: remove OpenRouter prefix
+    if name.startswith('OpenRouter'):
+        return name[len('OpenRouter'):]
+    return name
 
 class BenchmarkAnalyzer:
     """Analyze comprehensive benchmark results."""
@@ -133,10 +226,10 @@ class BenchmarkAnalyzer:
         for combo_key, combo_stats in self.team_combinations.items():
             combo_data.append({
                 'combination': combo_key,
-                'blue_hint_giver': MODEL_DISPLAY_NAMES.get(combo_stats['blue_hint_giver'], combo_stats['blue_hint_giver']),
-                'blue_guesser': MODEL_DISPLAY_NAMES.get(combo_stats['blue_guesser'], combo_stats['blue_guesser']),
-                'red_hint_giver': MODEL_DISPLAY_NAMES.get(combo_stats['red_hint_giver'], combo_stats['red_hint_giver']),
-                'red_guesser': MODEL_DISPLAY_NAMES.get(combo_stats['red_guesser'], combo_stats['red_guesser']),
+                'blue_hint_giver': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['blue_hint_giver'], combo_stats['blue_hint_giver'])),
+                'blue_guesser': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['blue_guesser'], combo_stats['blue_guesser'])),
+                'red_hint_giver': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['red_hint_giver'], combo_stats['red_hint_giver'])),
+                'red_guesser': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['red_guesser'], combo_stats['red_guesser'])),
                 'games_played': combo_stats['games_played'],
                 'blue_wins': combo_stats['blue_wins'],
                 'red_wins': combo_stats['red_wins'],
@@ -380,7 +473,7 @@ class BenchmarkAnalyzer:
                 margin = z * np.sqrt((p*(1-p) + z**2/(4*n)) / n) / denominator
 
                 results.append({
-                    'model': perf.get('model', key),
+                    'model': clean_model_name(perf.get('model', key)),
                     'role': perf.get('role', 'unknown'),
                     'team': perf.get('team', 'unknown'),
                     'win_rate': p,
@@ -406,7 +499,7 @@ class BenchmarkAnalyzer:
         perf_b = None
 
         for key, perf in self.model_performance.items():
-            model_name = perf.get('model', '')
+            model_name = clean_model_name(perf.get('model', ''))
             perf_role = perf.get('role', '')
 
             if model_name == model_a and (role is None or perf_role == role):
@@ -450,7 +543,7 @@ class BenchmarkAnalyzer:
         """Run significance tests between all model pairs."""
         models = set()
         for perf in self.model_performance.values():
-            models.add(perf.get('model', ''))
+            models.add(clean_model_name(perf.get('model', '')))
 
         models = sorted([m for m in models if m])
         results = []
@@ -503,7 +596,7 @@ class BenchmarkAnalyzer:
                 ambiguity_rate = wrong_guesses / hints_given if hints_given > 0 else 0
 
                 results.append({
-                    'model': perf.get('model', key),
+                    'model': clean_model_name(perf.get('model', key)),
                     'team': perf.get('team', 'unknown'),
                     'hints_given': hints_given,
                     'avg_hint_count': round(avg_hint_count, 2),
@@ -564,7 +657,7 @@ class BenchmarkAnalyzer:
                 risk_adjusted = (correct_guesses - 3 * bomb_hits) / guesses_made
 
                 results.append({
-                    'model': perf.get('model', key),
+                    'model': clean_model_name(perf.get('model', key)),
                     'team': perf.get('team', 'unknown'),
                     'games_played': perf.get('games_played', 0),
                     'first_guess_accuracy': round(first_guess_accuracy, 3),
@@ -604,11 +697,11 @@ class BenchmarkAnalyzer:
         models = set()
         for combo in self.team_combinations.values():
             if by_role == 'hint_giver':
-                models.add(combo.get('blue_hint_giver', ''))
-                models.add(combo.get('red_hint_giver', ''))
+                models.add(clean_model_name(combo.get('blue_hint_giver', '')))
+                models.add(clean_model_name(combo.get('red_hint_giver', '')))
             else:
-                models.add(combo.get('blue_guesser', ''))
-                models.add(combo.get('red_guesser', ''))
+                models.add(clean_model_name(combo.get('blue_guesser', '')))
+                models.add(clean_model_name(combo.get('red_guesser', '')))
 
         models = sorted([m for m in models if m])
 
@@ -618,11 +711,11 @@ class BenchmarkAnalyzer:
 
         for combo in self.team_combinations.values():
             if by_role == 'hint_giver':
-                blue_model = combo.get('blue_hint_giver', '')
-                red_model = combo.get('red_hint_giver', '')
+                blue_model = clean_model_name(combo.get('blue_hint_giver', ''))
+                red_model = clean_model_name(combo.get('red_hint_giver', ''))
             else:
-                blue_model = combo.get('blue_guesser', '')
-                red_model = combo.get('red_guesser', '')
+                blue_model = clean_model_name(combo.get('blue_guesser', ''))
+                red_model = clean_model_name(combo.get('red_guesser', ''))
 
             games = combo.get('games_played', 0)
             blue_wins = combo.get('blue_wins', 0)
@@ -707,10 +800,10 @@ class BenchmarkAnalyzer:
 
         for key, rating in ratings.items():
             if key.endswith('_hg'):
-                model = key[:-3]
+                model = clean_model_name(key[:-3])
                 model_ratings[model]['hint_giver'] = rating
             elif key.endswith('_g'):
-                model = key[:-2]
+                model = clean_model_name(key[:-2])
                 model_ratings[model]['guesser'] = rating
 
         for model, role_ratings in model_ratings.items():
@@ -841,7 +934,7 @@ class BenchmarkAnalyzer:
         })
 
         for key, perf in self.model_performance.items():
-            model = perf.get('model', '')
+            model = clean_model_name(perf.get('model', ''))
             role = perf.get('role', '')
 
             if model and role in ['hint_giver', 'guesser']:
@@ -901,7 +994,7 @@ class BenchmarkAnalyzer:
 
         # Aggregate from model_performance
         for key, perf in self.model_performance.items():
-            model = perf.get('model', key)
+            model = clean_model_name(perf.get('model', key))
 
             if perf.get('role') == 'guesser':
                 error_analysis['bomb_hits_by_model'][model] += perf.get('bomb_hits', 0)
@@ -1119,10 +1212,10 @@ class BenchmarkAnalyzer:
             red_efficiency = red_wins / total_turns if total_turns > 0 else 0
 
             results.append({
-                'blue_hint_giver': combo.get('blue_hint_giver', ''),
-                'blue_guesser': combo.get('blue_guesser', ''),
-                'red_hint_giver': combo.get('red_hint_giver', ''),
-                'red_guesser': combo.get('red_guesser', ''),
+                'blue_hint_giver': clean_model_name(combo.get('blue_hint_giver', '')),
+                'blue_guesser': clean_model_name(combo.get('blue_guesser', '')),
+                'red_hint_giver': clean_model_name(combo.get('red_hint_giver', '')),
+                'red_guesser': clean_model_name(combo.get('red_guesser', '')),
                 'games_played': games,
                 'avg_turns': round(avg_turns, 1),
                 'blue_wins': blue_wins,
@@ -1145,7 +1238,7 @@ class BenchmarkAnalyzer:
         if efficiency_df.empty:
             return pd.DataFrame()
 
-        # Aggregate by hint giver
+        # Aggregate by hint giver (names are already cleaned in analyze_game_efficiency)
         hint_giver_efficiency = []
 
         all_hint_givers = set(efficiency_df['blue_hint_giver'].unique()) | set(efficiency_df['red_hint_giver'].unique())
