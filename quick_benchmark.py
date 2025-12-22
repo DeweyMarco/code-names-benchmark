@@ -153,29 +153,38 @@ class QuickBenchmarkRunner:
     
     def _check_api_keys(self) -> bool:
         """Check if all required API keys are available."""
-        required_keys = {
-            BAMLModel.GPT5: ["OPENAI_API_KEY"],
-            BAMLModel.GEMINI_25_PRO: ["GOOGLE_API_KEY"],
-            BAMLModel.CLAUDE_HAIKU_45: ["ANTHROPIC_API_KEY"],
-            BAMLModel.DEEPSEEK_CHAT: ["DEEPSEEK_API_KEY"],
-            BAMLModel.DEEPSEEK_REASONER: ["DEEPSEEK_API_KEY"],
-            BAMLModel.GROK4: ["XAI_API_KEY"],
+        # Map model prefixes to required API keys
+        prefix_to_keys = {
+            "openrouter/": ["OPENROUTER_API_KEY"],
+            "gpt-": ["OPENAI_API_KEY"],
+            "o1": ["OPENAI_API_KEY"],
+            "o3": ["OPENAI_API_KEY"],
+            "gemini": ["GOOGLE_API_KEY"],
+            "claude": ["ANTHROPIC_API_KEY"],
+            "deepseek": ["DEEPSEEK_API_KEY"],
+            "grok": ["XAI_API_KEY"],
         }
-        
+
         missing_requirements = []
-        for model, keys in required_keys.items():
-            if model not in BENCHMARK_MODELS:
-                continue
-            if not any(os.getenv(key) for key in keys):
-                missing_requirements.append(f"{model.value} (one of {', '.join(keys)})")
-        
+        for model in BENCHMARK_MODELS:
+            model_value = model.value.lower()
+            required_key = None
+
+            for prefix, keys in prefix_to_keys.items():
+                if model_value.startswith(prefix):
+                    required_key = keys
+                    break
+
+            if required_key and not any(os.getenv(key) for key in required_key):
+                missing_requirements.append(f"{model.value} (one of {', '.join(required_key)})")
+
         if missing_requirements:
             self._log("ERROR: Missing API keys for:")
             for req in missing_requirements:
                 self._log(f"  - {req}")
             self._log("Please set the required API keys in your .env file")
             return False
-        
+
         return True
     
     def _run_single_game(self, blue_hint_giver: BAMLModel, blue_guesser: BAMLModel,
