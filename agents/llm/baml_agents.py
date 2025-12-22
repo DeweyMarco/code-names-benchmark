@@ -24,62 +24,121 @@ class BAMLModel(Enum):
     """
     Available BAML client models - matches clients defined in baml_src/clients.baml.
 
-    Models are organized into two categories:
-    - VERIFIED: Well-established models with confirmed API availability
-    - UNVERIFIED/PLANNED: Models that may not be available yet or have unconfirmed API support
-
-    WARNING: Using unverified models may result in API errors. Test availability before use.
+    Models are current as of December 2025. Ensure corresponding client definitions
+    exist in baml_src/clients.baml before using a model.
     """
 
     # ==========================================================================
-    # VERIFIED MODELS - Confirmed available with stable API support
+    # OpenAI Models (December 2025)
     # ==========================================================================
 
-    # OpenAI - GPT-4o Series (Multimodal) - VERIFIED
+    # GPT-5.2 Series (Latest - December 2025)
+    GPT5 = "GPT5"
+    GPT5_MINI = "GPT5Mini"
+    GPT5_NANO = "GPT5Nano"
+    GPT5_CHAT = "GPT5Chat"      # gpt-5.2-chat-latest (Instant)
+    GPT5_PRO = "GPT5Pro"        # gpt-5.2-pro
+
+    # GPT-4.1 Series (April 2025)
+    GPT41 = "GPT41"
+    GPT41_MINI = "GPT41Mini"
+    GPT41_NANO = "GPT41Nano"
+
+    # Reasoning Models (o-series)
+    O4_MINI = "O4Mini"
+    O3_MINI = "O3Mini"
+    O3 = "O3"
+    O1 = "O1"
+    O1_MINI = "O1Mini"
+    O1_PREVIEW = "O1Preview"
+
+    # GPT-4o Series (Still Available)
     GPT4O = "GPT4o"
     GPT4O_MINI = "GPT4oMini"
     GPT4O_20240806 = "GPT4o_20240806"
     GPT4O_MINI_20240718 = "GPT4oMini_20240718"
 
-    # OpenAI - GPT-4 Turbo Series - VERIFIED
+    # GPT-4 Turbo Series (Legacy)
     GPT4_TURBO = "GPT4Turbo"
     GPT4_TURBO_PREVIEW = "GPT4TurboPreview"
     GPT4_0125_PREVIEW = "GPT4_0125Preview"
     GPT4_1106_PREVIEW = "GPT4_1106Preview"
 
-    # OpenAI - GPT-4 Base Series - VERIFIED
+    # GPT-4 Base Series (Legacy)
     GPT4 = "GPT4"
     GPT4_32K = "GPT4_32k"
     GPT4_0613 = "GPT4_0613"
 
-    # OpenAI - GPT-3.5 Series - VERIFIED
+    # GPT-3.5 Series (Legacy)
     GPT35_TURBO = "GPT35Turbo"
     GPT35_TURBO_16K = "GPT35Turbo16k"
     GPT35_TURBO_INSTRUCT = "GPT35TurboInstruct"
 
-    # OpenAI - Reasoning Models (o-series) - VERIFIED
-    O1 = "O1"
-    O1_MINI = "O1Mini"
-    O1_PREVIEW = "O1Preview"
+    # ==========================================================================
+    # Anthropic Claude Models (December 2025)
+    # ==========================================================================
 
-    # Anthropic - Claude 3.5 Series - VERIFIED
+    # Claude 4.5 Series (Latest - October/November 2025)
+    CLAUDE_SONNET_45 = "ClaudeSonnet45"  # 1M context available
+    CLAUDE_HAIKU_45 = "ClaudeHaiku45"    # Fast, affordable
+
+    # Claude 4.x Series
+    CLAUDE_OPUS_41 = "ClaudeOpus41"      # Most capable (August 2025)
+    CLAUDE_SONNET_4 = "ClaudeSonnet4"    # May 2025
+    CLAUDE_OPUS_4 = "ClaudeOpus4"        # May 2025
+
+    # Claude 3.x Series (Legacy - some deprecated)
+    CLAUDE_SONNET_37 = "ClaudeSonnet37"
     CLAUDE_HAIKU_35 = "ClaudeHaiku35"
-
-    # Anthropic - Claude 3 Series - VERIFIED
     CLAUDE_HAIKU_3 = "ClaudeHaiku3"
 
-    # Google - Gemini 2.0 Series - VERIFIED
+    # ==========================================================================
+    # Google Gemini Models (December 2025)
+    # ==========================================================================
+
+    # Gemini 2.5 Series
+    GEMINI_25_PRO = "Gemini25Pro"
+    GEMINI_25_FLASH = "Gemini25Flash"
+    GEMINI_25_FLASH_LITE = "Gemini25FlashLite"
+
+    # Gemini 2.0 Series
     GEMINI_20_FLASH = "Gemini20Flash"
     GEMINI_20_FLASH_LITE = "Gemini20FlashLite"
 
-    # DeepSeek - VERIFIED
-    DEEPSEEK_CHAT = "DeepSeekChat"
-    DEEPSEEK_REASONER = "DeepSeekReasoner"
+    # Note: Gemini 3 Flash (gemini-3-flash-preview) released Dec 17, 2025
+    # Add to clients.baml when needed
 
-    # Meta Llama (via Together AI or similar) - VERIFIED
+    # ==========================================================================
+    # xAI Grok Models (December 2025)
+    # ==========================================================================
+
+    # Grok 4 Series
+    GROK4 = "Grok4"
+    GROK4_FAST_REASONING = "Grok4FastReasoning"      # grok-4-fast-reasoning
+    GROK4_FAST_NON_REASONING = "Grok4FastNonReasoning"  # grok-4-fast-non-reasoning
+
+    # Grok 3 Series
+    GROK3 = "Grok3"
+    GROK3_FAST = "Grok3Fast"
+    GROK3_MINI = "Grok3Mini"
+    GROK3_MINI_FAST = "Grok3MiniFast"
+
+    # ==========================================================================
+    # DeepSeek Models (December 2025)
+    # ==========================================================================
+
+    # DeepSeek V3.2 (December 2025)
+    DEEPSEEK_CHAT = "DeepSeekChat"          # V3.2 non-thinking mode
+    DEEPSEEK_REASONER = "DeepSeekReasoner"  # V3.2 thinking mode
+
+    # ==========================================================================
+    # Other Models
+    # ==========================================================================
+
+    # Meta Llama (via Together AI or similar)
     LLAMA = "Llama"
 
-    # OpenRouter - Free Models - VERIFIED WORKING
+    # OpenRouter - Free Models
     OPENROUTER_DEVSTRAL = "OpenRouterDevstral"
     OPENROUTER_MIMO_V2_FLASH = "OpenRouterMimoV2Flash"
     OPENROUTER_NEMOTRON_NANO = "OpenRouterNemotronNano"
@@ -88,57 +147,6 @@ class BAMLModel(Enum):
     OPENROUTER_GLM_45_AIR = "OpenRouterGLM45Air"
     OPENROUTER_LLAMA_33_70B = "OpenRouterLlama33_70B"
     OPENROUTER_OLMO3_32B = "OpenRouterOLMo3_32B"
-
-    # ==========================================================================
-    # UNVERIFIED/PLANNED MODELS - May not be available; test before use
-    # ==========================================================================
-
-    # OpenAI - GPT-5 Series (UNVERIFIED - may not exist)
-    GPT5 = "GPT5"
-    GPT5_MINI = "GPT5Mini"
-    GPT5_NANO = "GPT5Nano"
-    GPT5_CHAT = "GPT5Chat"
-    GPT5_PRO = "GPT5Pro"
-
-    # OpenAI - GPT-4.1 Series (UNVERIFIED - may not exist)
-    GPT41 = "GPT41"
-    GPT41_MINI = "GPT41Mini"
-    GPT41_NANO = "GPT41Nano"
-
-    # OpenAI - Reasoning Models (UNVERIFIED)
-    O4_MINI = "O4Mini"  # UNVERIFIED - may not exist
-    O3_MINI = "O3Mini"  # Check availability
-    O3 = "O3"  # Check availability
-
-    # Anthropic - Claude 4.5 Series (UNVERIFIED - check API availability)
-    CLAUDE_SONNET_45 = "ClaudeSonnet45"
-    CLAUDE_HAIKU_45 = "ClaudeHaiku45"
-
-    # Anthropic - Claude 4.1 Series (UNVERIFIED - check API availability)
-    CLAUDE_OPUS_41 = "ClaudeOpus41"
-
-    # Anthropic - Claude 4 Series (UNVERIFIED - check API availability)
-    CLAUDE_SONNET_4 = "ClaudeSonnet4"
-    CLAUDE_OPUS_4 = "ClaudeOpus4"
-
-    # Anthropic - Claude 3.7 Series (UNVERIFIED - check API availability)
-    CLAUDE_SONNET_37 = "ClaudeSonnet37"
-
-    # Google - Gemini 2.5 Series (UNVERIFIED - check API availability)
-    GEMINI_25_PRO = "Gemini25Pro"
-    GEMINI_25_FLASH = "Gemini25Flash"
-    GEMINI_25_FLASH_LITE = "Gemini25FlashLite"
-
-    # xAI - Grok 4 Series (UNVERIFIED - may not exist)
-    GROK4 = "Grok4"
-    GROK4_FAST_REASONING = "Grok4FastReasoning"
-    GROK4_FAST_NON_REASONING = "Grok4FastNonReasoning"
-
-    # xAI - Grok 3 Series (UNVERIFIED - check API availability)
-    GROK3 = "Grok3"
-    GROK3_FAST = "Grok3Fast"
-    GROK3_MINI = "Grok3Mini"
-    GROK3_MINI_FAST = "Grok3MiniFast"
 
 
 class BAMLHintGiver(HintGiver):
