@@ -47,12 +47,6 @@ load_dotenv()
 # Models to test - uses centralized benchmark model configuration
 BENCHMARK_MODELS = get_benchmark_models()
 
-# Fixed team configuration for quick single-combination benchmark
-BLUE_HINT_GIVER = BAMLModel.OPENROUTER_DEVSTRAL
-BLUE_GUESSER = BAMLModel.OPENROUTER_MIMO_V2_FLASH
-RED_HINT_GIVER = BAMLModel.OPENROUTER_OLMO3_32B
-RED_GUESSER = BAMLModel.OPENROUTER_NEMOTRON_NANO
-
 # Quick benchmark settings
 GAMES_PER_COMBINATION = 2  # Quick benchmark uses fewer games; comprehensive_benchmark.py uses 3+
 OUTPUT_DIR = "quick_benchmark_results"
