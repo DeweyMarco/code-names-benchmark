@@ -4,22 +4,6 @@ This document outlines bugs and issues discovered during code review of the benc
 
 ---
 
-## Medium Severity Bugs
-
-### 3. Win Rate Calculation Includes Draws
-
-**Location:** Lines 237-238
-
-```python
-'blue_win_rate': combo_stats['blue_wins'] / combo_stats['games_played'] if combo_stats['games_played'] > 0 else 0,
-```
-
-**Problem:** `games_played` includes draws, so win rates are slightly deflated. For example, 5 wins + 3 losses + 2 draws = 5/10 = 50% instead of 5/8 = 62.5%.
-
-**Consideration:** This may be intentional (treating draws as "not wins"), but should be documented.
-
----
-
 ## Minor Issues
 
 ### 4. Redundant MODEL_DISPLAY_NAMES Dictionary
@@ -57,7 +41,6 @@ except (ValueError, TypeError, AttributeError) as e:
 
 | Bug | Severity | Impact |
 |-----|----------|--------|
-| Draws in win rate denominator | Medium | Deflated win rates |
 | Redundant display name dict | Minor | Maintenance burden |
 | Bare except clause | Minor | Could mask errors |
 
