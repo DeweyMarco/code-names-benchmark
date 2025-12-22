@@ -164,6 +164,10 @@ class BAMLHintGiver(HintGiver):
             self._registry = ClientRegistry()
             self._registry.set_primary(model.value)
 
+    def get_model_name(self) -> str:
+        """Return the model identifier (e.g., 'OpenRouterDevstral', 'GPT4oMini')."""
+        return self.model.value
+
     def give_hint(
         self,
         my_words: List[str],
@@ -228,6 +232,10 @@ class BAMLGuesser(Guesser):
         with _registry_lock:
             self._registry = ClientRegistry()
             self._registry.set_primary(model.value)
+
+    def get_model_name(self) -> str:
+        """Return the model identifier (e.g., 'OpenRouterDevstral', 'GPT4oMini')."""
+        return self.model.value
 
     def make_guesses(
         self,

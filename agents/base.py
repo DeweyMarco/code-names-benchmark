@@ -51,6 +51,16 @@ class HintGiver(ABC):
         """
         self.team = team
     
+    def get_model_name(self) -> str:
+        """
+        Get the model name for this agent.
+
+        Returns the model identifier (e.g., "OpenRouterDevstral", "GPT4oMini").
+        Subclasses should override this to return their actual model name.
+        Default implementation returns the class name.
+        """
+        return self.__class__.__name__
+
     @abstractmethod
     def give_hint(
         self,
@@ -101,6 +111,16 @@ class Guesser(ABC):
         """
         self.team = team
     
+    def get_model_name(self) -> str:
+        """
+        Get the model name for this agent.
+
+        Returns the model identifier (e.g., "OpenRouterDevstral", "GPT4oMini").
+        Subclasses should override this to return their actual model name.
+        Default implementation returns the class name.
+        """
+        return self.__class__.__name__
+
     @abstractmethod
     def make_guesses(
         self,

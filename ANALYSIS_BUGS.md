@@ -6,31 +6,7 @@ This document outlines bugs and issues discovered during code review of the benc
 
 ## Critical Bugs
 
-### 1. ELO Rating Calculation is Completely Broken
-
-**Location:** Lines 757-767
-
-```python
-for key, combo in self.team_combinations.items():
-    if (combo.get('blue_hint_giver') and combo.get('blue_guesser') and
-        combo.get('red_hint_giver') and combo.get('red_guesser')):
-        combo_key = key
-        blue_hg = combo['blue_hint_giver']
-        blue_g = combo['blue_guesser']
-        red_hg = combo['red_hint_giver']
-        red_g = combo['red_guesser']
-        break  # <-- BREAKS ON FIRST COMBO FOUND!
-```
-
-**Problem:** The loop breaks after finding *any* team combination with all fields populated. This means **ALL games are attributed to the first combination**, not the actual models that played each game. The Elo ratings are completely incorrect.
-
-**Root Cause:** Games store agent class names (`"BAMLHintGiver"`, `"BAMLGuesser"`) in the `agents` field, not model names (`"OpenRouterDevstral"`). There is no reliable way to link a game back to its correct team combination.
-
-**Impact:** All Elo ratings are meaningless.
-
----
-
-### 2. `analyze_model_performance()` Loses Model Identity
+### 1. `analyze_model_performance()` Loses Model Identity
 
 **Location:** Lines 178, 189
 
@@ -46,7 +22,7 @@ model_key = f"{team}_guesser"  # This is simplified
 
 ---
 
-### 3. String Formatting Error Will Crash
+### 2. String Formatting Error Will Crash
 
 **Location:** Lines 1292-1294
 
@@ -74,7 +50,7 @@ else:
 
 ## Medium Severity Bugs
 
-### 4. Double `clean_model_name` Call
+### 3. Double `clean_model_name` Call
 
 **Location:** Lines 229-232
 
@@ -93,7 +69,7 @@ else:
 
 ---
 
-### 5. Incorrect Versatility Score for Zero Win Rates
+### 4. Incorrect Versatility Score for Zero Win Rates
 
 **Location:** Line 954
 
@@ -122,7 +98,7 @@ else:
 
 ---
 
-### 6. Win Rate Calculation Includes Draws
+### 5. Win Rate Calculation Includes Draws
 
 **Location:** Lines 237-238
 
@@ -138,7 +114,7 @@ else:
 
 ## Minor Issues
 
-### 7. Redundant MODEL_DISPLAY_NAMES Dictionary
+### 6. Redundant MODEL_DISPLAY_NAMES Dictionary
 
 **Location:** Lines 23-96 and Line 19
 
@@ -148,7 +124,7 @@ The file defines a large `MODEL_DISPLAY_NAMES` dictionary but also imports `get_
 
 ---
 
-### 8. Bare `except` Clause
+### 7. Bare `except` Clause
 
 **Location:** Line 1176
 
@@ -169,34 +145,10 @@ except (ValueError, TypeError, AttributeError) as e:
 
 ---
 
-### 9. No Game-to-Combination Linkage in Data Structure
-
-**Location:** Game data structure
-
-The `games` array stores agent class names in the `agents` field:
-```json
-"agents": {
-    "blue_hint_giver": "BAMLHintGiver",
-    "blue_guesser": "BAMLGuesser",
-    "red_hint_giver": "BAMLHintGiver",
-    "red_guesser": "BAMLGuesser"
-}
-```
-
-These are agent class names, not model identifiers like `"OpenRouterDevstral"`. This makes it impossible to:
-- Link individual games to their team combinations
-- Calculate per-model statistics from game-level data
-- Track model performance across games
-
-**Recommendation:** Store model names in the game data, or add a `combination_key` field to each game that references `team_combinations`.
-
----
-
 ## Summary Table
 
 | Bug | Severity | Impact |
 |-----|----------|--------|
-| ELO calculation breaks on first combo | Critical | All Elo ratings are wrong |
 | `analyze_model_performance` generic keys | Critical | Per-model game stats unusable |
 | p_value formatting crash | Critical | Script crashes on certain data |
 | Double `clean_model_name` | Medium | Inefficiency, possible inconsistency |
@@ -204,14 +156,11 @@ These are agent class names, not model identifiers like `"OpenRouterDevstral"`. 
 | Draws in win rate denominator | Medium | Deflated win rates |
 | Redundant display name dict | Minor | Maintenance burden |
 | Bare except clause | Minor | Could mask errors |
-| No game-to-combo linkage | Minor | Limits analysis capabilities |
 
 ---
 
 ## Recommended Priority
 
-1. **Fix the data structure** - Add model names or combination keys to game records
-2. **Fix ELO calculation** - Use correct team combination per game
-3. **Fix p_value formatting** - Prevent crash
-4. **Fix `analyze_model_performance`** - Extract actual model names from data
-5. **Clean up redundant code** - Single source for display names
+1. **Fix p_value formatting** - Prevent crash
+2. **Fix `analyze_model_performance`** - Extract actual model names from data (now available via `models` field)
+3. **Clean up redundant code** - Single source for display names

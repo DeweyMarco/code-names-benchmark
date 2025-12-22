@@ -743,56 +743,103 @@ class BenchmarkAnalyzer:
 
         Each model gets separate ratings for hint_giver and guesser roles.
         Team rating is the average of hint_giver and guesser ratings.
+
+        Uses game-level model info if available (new format), otherwise falls back
+        to aggregate data from team_combinations (for backward compatibility).
         """
         ratings = defaultdict(lambda: initial_rating)
         rating_history = defaultdict(list)
 
-        # Process games in order
-        for game in self.games:
-            winner = game.get('winner')
-            if not winner:
-                continue
+        # Check if games have model information (new format)
+        games_have_models = any(game.get('models') for game in self.games)
 
-            # Get model names from team_combinations using the combination key
-            combo_key = None
-            for key, combo in self.team_combinations.items():
-                # Match based on game configuration
-                if (combo.get('blue_hint_giver') and combo.get('blue_guesser') and
-                    combo.get('red_hint_giver') and combo.get('red_guesser')):
-                    combo_key = key
-                    blue_hg = combo['blue_hint_giver']
-                    blue_g = combo['blue_guesser']
-                    red_hg = combo['red_hint_giver']
-                    red_g = combo['red_guesser']
-                    break
+        if games_have_models:
+            # New format: process individual games with model info
+            for game in self.games:
+                winner = game.get('winner')
+                if not winner:
+                    continue
 
-            if not combo_key:
-                continue
+                models = game.get('models', {})
+                if not models:
+                    continue
 
-            # Calculate team ratings (average of members)
-            blue_rating = (ratings[f"{blue_hg}_hg"] + ratings[f"{blue_g}_g"]) / 2
-            red_rating = (ratings[f"{red_hg}_hg"] + ratings[f"{red_g}_g"]) / 2
+                blue_hg = models.get('blue_hint_giver')
+                blue_g = models.get('blue_guesser')
+                red_hg = models.get('red_hint_giver')
+                red_g = models.get('red_guesser')
 
-            # Expected scores
-            expected_blue = 1 / (1 + 10**((red_rating - blue_rating) / 400))
-            expected_red = 1 - expected_blue
+                # Skip if any model is missing
+                if not all([blue_hg, blue_g, red_hg, red_g]):
+                    continue
 
-            # Actual scores
-            actual_blue = 1 if winner == 'blue' else 0
-            actual_red = 1 - actual_blue
+                # Calculate team ratings (average of members)
+                blue_rating = (ratings[f"{blue_hg}_hg"] + ratings[f"{blue_g}_g"]) / 2
+                red_rating = (ratings[f"{red_hg}_hg"] + ratings[f"{red_g}_g"]) / 2
 
-            # Update ratings
-            blue_delta = k_factor * (actual_blue - expected_blue)
-            red_delta = k_factor * (actual_red - expected_red)
+                # Expected scores
+                expected_blue = 1 / (1 + 10**((red_rating - blue_rating) / 400))
+                expected_red = 1 - expected_blue
 
-            ratings[f"{blue_hg}_hg"] += blue_delta / 2
-            ratings[f"{blue_g}_g"] += blue_delta / 2
-            ratings[f"{red_hg}_hg"] += red_delta / 2
-            ratings[f"{red_g}_g"] += red_delta / 2
+                # Actual scores
+                actual_blue = 1 if winner == 'blue' else 0
+                actual_red = 1 - actual_blue
 
-            # Track history
-            for model_role, rating in ratings.items():
-                rating_history[model_role].append(rating)
+                # Update ratings
+                blue_delta = k_factor * (actual_blue - expected_blue)
+                red_delta = k_factor * (actual_red - expected_red)
+
+                ratings[f"{blue_hg}_hg"] += blue_delta / 2
+                ratings[f"{blue_g}_g"] += blue_delta / 2
+                ratings[f"{red_hg}_hg"] += red_delta / 2
+                ratings[f"{red_g}_g"] += red_delta / 2
+
+                # Track history
+                for model_role, rating in ratings.items():
+                    rating_history[model_role].append(rating)
+        else:
+            # Fallback: use aggregate data from team_combinations
+            # This is less accurate (game order not preserved) but works with old data
+            for combo_key, combo in self.team_combinations.items():
+                if not (combo.get('blue_hint_giver') and combo.get('blue_guesser') and
+                        combo.get('red_hint_giver') and combo.get('red_guesser')):
+                    continue
+
+                blue_hg = combo['blue_hint_giver']
+                blue_g = combo['blue_guesser']
+                red_hg = combo['red_hint_giver']
+                red_g = combo['red_guesser']
+
+                blue_wins = combo.get('blue_wins', 0)
+                red_wins = combo.get('red_wins', 0)
+
+                # Process blue wins
+                for _ in range(blue_wins):
+                    blue_rating = (ratings[f"{blue_hg}_hg"] + ratings[f"{blue_g}_g"]) / 2
+                    red_rating = (ratings[f"{red_hg}_hg"] + ratings[f"{red_g}_g"]) / 2
+                    expected_blue = 1 / (1 + 10**((red_rating - blue_rating) / 400))
+                    blue_delta = k_factor * (1 - expected_blue)
+                    red_delta = k_factor * (0 - (1 - expected_blue))
+                    ratings[f"{blue_hg}_hg"] += blue_delta / 2
+                    ratings[f"{blue_g}_g"] += blue_delta / 2
+                    ratings[f"{red_hg}_hg"] += red_delta / 2
+                    ratings[f"{red_g}_g"] += red_delta / 2
+                    for model_role, rating in ratings.items():
+                        rating_history[model_role].append(rating)
+
+                # Process red wins
+                for _ in range(red_wins):
+                    blue_rating = (ratings[f"{blue_hg}_hg"] + ratings[f"{blue_g}_g"]) / 2
+                    red_rating = (ratings[f"{red_hg}_hg"] + ratings[f"{red_g}_g"]) / 2
+                    expected_blue = 1 / (1 + 10**((red_rating - blue_rating) / 400))
+                    blue_delta = k_factor * (0 - expected_blue)
+                    red_delta = k_factor * (1 - (1 - expected_blue))
+                    ratings[f"{blue_hg}_hg"] += blue_delta / 2
+                    ratings[f"{blue_g}_g"] += blue_delta / 2
+                    ratings[f"{red_hg}_hg"] += red_delta / 2
+                    ratings[f"{red_g}_g"] += red_delta / 2
+                    for model_role, rating in ratings.items():
+                        rating_history[model_role].append(rating)
 
         # Compile results
         results = []

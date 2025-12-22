@@ -28,6 +28,11 @@ class GameResult:
     blue_guesser_name: str
     red_hint_giver_name: str
     red_guesser_name: str
+    # Model names for tracking which LLM played each role
+    blue_hint_giver_model: Optional[str] = None
+    blue_guesser_model: Optional[str] = None
+    red_hint_giver_model: Optional[str] = None
+    red_guesser_model: Optional[str] = None
     error: Optional[str] = None
     timestamp: datetime = field(default_factory=lambda: datetime.now())
     
@@ -47,6 +52,12 @@ class GameResult:
                 'blue_guesser': self.blue_guesser_name,
                 'red_hint_giver': self.red_hint_giver_name,
                 'red_guesser': self.red_guesser_name
+            },
+            'models': {
+                'blue_hint_giver': self.blue_hint_giver_model,
+                'blue_guesser': self.blue_guesser_model,
+                'red_hint_giver': self.red_hint_giver_model,
+                'red_guesser': self.red_guesser_model
             },
             'snapshot': self.snapshot,
             'error': self.error,
@@ -536,6 +547,10 @@ class GameRunner:
             blue_guesser_name=self.agents[Team.BLUE]['guesser'].__class__.__name__,
             red_hint_giver_name=self.agents[Team.RED]['hint_giver'].__class__.__name__,
             red_guesser_name=self.agents[Team.RED]['guesser'].__class__.__name__,
+            blue_hint_giver_model=self.agents[Team.BLUE]['hint_giver'].get_model_name(),
+            blue_guesser_model=self.agents[Team.BLUE]['guesser'].get_model_name(),
+            red_hint_giver_model=self.agents[Team.RED]['hint_giver'].get_model_name(),
+            red_guesser_model=self.agents[Team.RED]['guesser'].get_model_name(),
             error=error_message
         )
         
