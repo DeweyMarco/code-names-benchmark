@@ -1003,9 +1003,9 @@ class BenchmarkAnalyzer:
             hg_rate = roles['hint_giver']['wins'] / hg_games if hg_games > 0 else 0
             g_rate = roles['guesser']['wins'] / g_games if g_games > 0 else 0
 
-            # Versatility: 1 - normalized difference
+            # Versatility: 1 - normalized difference (0 if no wins in either role)
             if hg_rate + g_rate > 0:
-                versatility = 1 - abs(hg_rate - g_rate) / max(hg_rate, g_rate, 0.001)
+                versatility = 1 - abs(hg_rate - g_rate) / max(hg_rate, g_rate)
             else:
                 versatility = 0
 

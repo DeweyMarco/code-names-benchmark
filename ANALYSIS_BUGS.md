@@ -6,36 +6,7 @@ This document outlines bugs and issues discovered during code review of the benc
 
 ## Medium Severity Bugs
 
-### 3. Incorrect Versatility Score for Zero Win Rates
-
-**Location:** Line 954
-
-```python
-versatility = 1 - abs(hg_rate - g_rate) / max(hg_rate, g_rate, 0.001)
-```
-
-**Problem:** If both `hg_rate` and `g_rate` are 0:
-- `abs(0 - 0) = 0`
-- `max(0, 0, 0.001) = 0.001`
-- `versatility = 1 - 0/0.001 = 1.0`
-
-This reports "perfect versatility" when the model won zero games in both roles.
-
-**Fix:**
-```python
-if hg_rate == 0 and g_rate == 0:
-    versatility = 0  # No wins = no demonstrated versatility
-elif hg_rate + g_rate > 0:
-    versatility = 1 - abs(hg_rate - g_rate) / max(hg_rate, g_rate)
-else:
-    versatility = 0
-```
-
-**Impact:** Misleading versatility metric for poorly performing models.
-
----
-
-### 4. Win Rate Calculation Includes Draws
+### 3. Win Rate Calculation Includes Draws
 
 **Location:** Lines 237-238
 
@@ -51,7 +22,7 @@ else:
 
 ## Minor Issues
 
-### 5. Redundant MODEL_DISPLAY_NAMES Dictionary
+### 4. Redundant MODEL_DISPLAY_NAMES Dictionary
 
 **Location:** Lines 23-96 and Line 19
 
@@ -61,7 +32,7 @@ The file defines a large `MODEL_DISPLAY_NAMES` dictionary but also imports `get_
 
 ---
 
-### 6. Bare `except` Clause
+### 5. Bare `except` Clause
 
 **Location:** Line 1176
 
@@ -86,7 +57,6 @@ except (ValueError, TypeError, AttributeError) as e:
 
 | Bug | Severity | Impact |
 |-----|----------|--------|
-| Zero win rate versatility | Medium | Misleading metric |
 | Draws in win rate denominator | Medium | Deflated win rates |
 | Redundant display name dict | Minor | Maintenance burden |
 | Bare except clause | Minor | Could mask errors |
