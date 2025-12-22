@@ -6,23 +6,7 @@ This document outlines bugs and issues discovered during code review of the benc
 
 ## Critical Bugs
 
-### 1. `analyze_model_performance()` Loses Model Identity
-
-**Location:** Lines 178, 189
-
-```python
-model_key = f"{team}_hint_giver"  # This is simplified
-# ...
-model_key = f"{team}_guesser"  # This is simplified
-```
-
-**Problem:** All blue hint givers are grouped under `"blue_hint_giver"` regardless of which model they are. Same for other roles. The function cannot distinguish between different models' performance.
-
-**Impact:** Per-model performance analysis from game history is impossible; all models on the same team are conflated.
-
----
-
-### 2. String Formatting Error Will Crash
+### 1. String Formatting Error Will Crash
 
 **Location:** Lines 1292-1294
 
@@ -50,7 +34,7 @@ else:
 
 ## Medium Severity Bugs
 
-### 3. Double `clean_model_name` Call
+### 2. Double `clean_model_name` Call
 
 **Location:** Lines 229-232
 
@@ -69,7 +53,7 @@ else:
 
 ---
 
-### 4. Incorrect Versatility Score for Zero Win Rates
+### 3. Incorrect Versatility Score for Zero Win Rates
 
 **Location:** Line 954
 
@@ -98,7 +82,7 @@ else:
 
 ---
 
-### 5. Win Rate Calculation Includes Draws
+### 4. Win Rate Calculation Includes Draws
 
 **Location:** Lines 237-238
 
@@ -114,7 +98,7 @@ else:
 
 ## Minor Issues
 
-### 6. Redundant MODEL_DISPLAY_NAMES Dictionary
+### 5. Redundant MODEL_DISPLAY_NAMES Dictionary
 
 **Location:** Lines 23-96 and Line 19
 
@@ -124,7 +108,7 @@ The file defines a large `MODEL_DISPLAY_NAMES` dictionary but also imports `get_
 
 ---
 
-### 7. Bare `except` Clause
+### 6. Bare `except` Clause
 
 **Location:** Line 1176
 
@@ -149,7 +133,6 @@ except (ValueError, TypeError, AttributeError) as e:
 
 | Bug | Severity | Impact |
 |-----|----------|--------|
-| `analyze_model_performance` generic keys | Critical | Per-model game stats unusable |
 | p_value formatting crash | Critical | Script crashes on certain data |
 | Double `clean_model_name` | Medium | Inefficiency, possible inconsistency |
 | Zero win rate versatility | Medium | Misleading metric |
@@ -162,5 +145,4 @@ except (ValueError, TypeError, AttributeError) as e:
 ## Recommended Priority
 
 1. **Fix p_value formatting** - Prevent crash
-2. **Fix `analyze_model_performance`** - Extract actual model names from data (now available via `models` field)
-3. **Clean up redundant code** - Single source for display names
+2. **Clean up redundant code** - Single source for display names

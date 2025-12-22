@@ -159,6 +159,9 @@ class BenchmarkAnalyzer:
             snapshot = game['snapshot']
             turn_history = snapshot.get('turn_history', [])
 
+            # Get actual model names from game data
+            models = game.get('models', {})
+
             # Determine which team won (winner value is lowercase from Team enum)
             blue_won = game.get('winner') == 'blue'
             red_won = game.get('winner') == 'red'
@@ -172,10 +175,12 @@ class BenchmarkAnalyzer:
                 hint_word = turn.get('hint_word', '')
                 hint_count = turn.get('hint_count', 0)
                 guesses = turn.get('guesses', [])
-                
+
                 # Count hints and their success
                 if hint_word and hint_count > 0:
-                    model_key = f"{team}_hint_giver"  # This is simplified
+                    # Use actual model name from game data, with role suffix
+                    actual_model = models.get(f'{team}_hint_giver', f'{team}_hint_giver')
+                    model_key = f"{clean_model_name(actual_model)} (hint_giver)"
                     roles_in_game.add((model_key, team))
                     model_stats[model_key]['hints_given'] += 1
 
@@ -186,7 +191,9 @@ class BenchmarkAnalyzer:
 
                 # Count guesses
                 for guess in guesses:
-                    model_key = f"{team}_guesser"  # This is simplified
+                    # Use actual model name from game data, with role suffix
+                    actual_model = models.get(f'{team}_guesser', f'{team}_guesser')
+                    model_key = f"{clean_model_name(actual_model)} (guesser)"
                     roles_in_game.add((model_key, team))
                     model_stats[model_key]['guesses_made'] += 1
 
