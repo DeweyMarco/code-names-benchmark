@@ -89,11 +89,14 @@ def get_benchmark_models() -> list:
     confirmed available as of December 2025.
     """
     return [
-        BAMLModel.GPT4O_MINI,        # OpenAI - cost-effective, verified
-        BAMLModel.GEMINI_20_FLASH,   # Google - fast and cost-effective
-        BAMLModel.CLAUDE_HAIKU_35,   # Anthropic - Claude 3.5 Haiku (verified)
-        BAMLModel.DEEPSEEK_REASONER, # DeepSeek - reasoning model (V3.2)
-        BAMLModel.LLAMA,             # Meta Llama via Together AI
+        BAMLModel.OPENROUTER_DEVSTRAL,
+        BAMLModel.OPENROUTER_MIMO_V2_FLASH,
+        BAMLModel.OPENROUTER_NEMOTRON_NANO,
+        BAMLModel.OPENROUTER_DEEPSEEK_R1T_CHIMERA,
+        BAMLModel.OPENROUTER_DEEPSEEK_R1T2_CHIMERA,
+        BAMLModel.OPENROUTER_GLM_45_AIR,
+        BAMLModel.OPENROUTER_LLAMA_33_70B,
+        BAMLModel.OPENROUTER_OLMO3_32B,
     ]
 
 def get_model_display_name(model: BAMLModel) -> str:

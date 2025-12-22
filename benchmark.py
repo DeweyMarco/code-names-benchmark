@@ -1,13 +1,8 @@
 """
-Quick Codenames Benchmark: Test Key Model Combinations
+Codenames Benchmark: Test Model Combinations
 
-This is a more practical version of the comprehensive benchmark that tests
-a focused set of model combinations to get quick insights about model performance.
-
-Instead of testing all 625 combinations (5^4), this tests:
-- Each model as hint giver vs each model as guesser (25 combinations)
-- Key strategic combinations
-- Total: ~50-100 games instead of 1,875 games
+Tests model combinations to evaluate LLM performance in the Codenames game.
+Each model plays at most one role per game to ensure fair evaluation.
 """
 
 import os
@@ -53,14 +48,14 @@ load_dotenv()
 # Models to test - uses centralized benchmark model configuration
 BENCHMARK_MODELS = get_benchmark_models()
 
-# Quick benchmark settings
-GAMES_PER_COMBINATION = 2  # Quick benchmark uses fewer games; comprehensive_benchmark.py uses 3+
-OUTPUT_DIR = "quick_benchmark_results"
+# Benchmark settings
+GAMES_PER_COMBINATION = 2
+OUTPUT_DIR = "benchmark_results"
 VERBOSE = True
 
 @dataclass
-class QuickBenchmarkResult:
-    """Results from quick benchmark."""
+class BenchmarkResult:
+    """Results from benchmark run."""
     benchmark_id: str
     timestamp: datetime
     total_combinations: int
@@ -86,14 +81,14 @@ class QuickBenchmarkResult:
         }
         
         # Save main results
-        main_file = Path(output_dir) / f"{self.benchmark_id}_quick.json"
+        main_file = Path(output_dir) / f"{self.benchmark_id}.json"
         with open(main_file, 'w') as f:
             json.dump(result_dict, f, indent=2)
         
         return main_file
 
-class QuickBenchmarkRunner:
-    """Run quick benchmark with focused model combinations."""
+class BenchmarkRunner:
+    """Run benchmark with model combinations."""
     
     def __init__(self, games_per_combination: int = GAMES_PER_COMBINATION, verbose: bool = VERBOSE):
         self.games_per_combination = games_per_combination
@@ -212,7 +207,7 @@ class QuickBenchmarkRunner:
             red_guesser=red_guess_agent,
             max_turns=self.config.game.MAX_TURNS,
             verbose=False,  # Individual games are quiet
-            game_id=f"quick_game_{game_number}"
+            game_id=f"game_{game_number}"
         )
         
         # Run the game
@@ -374,15 +369,15 @@ class QuickBenchmarkRunner:
                         guess_metrics['bomb_hits'] += 1
                     # Per-turn aggregates already accounted for above
     
-    def run(self) -> QuickBenchmarkResult:
+    def run(self) -> BenchmarkResult:
         """
-        Run the quick benchmark across all model combinations.
+        Run the benchmark across all model combinations.
 
         Executes games for each combination of hint giver and guesser models,
         tracking performance metrics and game outcomes.
 
         Returns:
-            QuickBenchmarkResult containing:
+            BenchmarkResult containing:
             - benchmark_id: Unique identifier for this benchmark run
             - model_performance: Per-model metrics (wins, guesses, accuracy)
             - team_combinations: Results for each team combination tested
@@ -397,7 +392,7 @@ class QuickBenchmarkRunner:
         """
         
         self._log("=" * 80)
-        self._log("QUICK CODENAMES BENCHMARK")
+        self._log("CODENAMES BENCHMARK")
         self._log("=" * 80)
         self._log(f"Testing {len(BENCHMARK_MODELS)} models in focused combinations")
         self._log(f"Models: {[get_model_display_name(m) for m in BENCHMARK_MODELS]}")
@@ -486,9 +481,9 @@ class QuickBenchmarkRunner:
         total_time = time.time() - start_time
         
         # Create result
-        benchmark_id = f"quick_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        
-        result = QuickBenchmarkResult(
+        benchmark_id = f"benchmark_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+        result = BenchmarkResult(
             benchmark_id=benchmark_id,
             timestamp=datetime.now(),
             total_combinations=total_combinations,
@@ -504,11 +499,11 @@ class QuickBenchmarkRunner:
         
         return result
     
-    def _print_summary(self, result: QuickBenchmarkResult, total_time: float):
+    def _print_summary(self, result: BenchmarkResult, total_time: float):
         """Print summary of results."""
-        
+
         self._log("\n" + "=" * 80)
-        self._log("QUICK BENCHMARK SUMMARY")
+        self._log("BENCHMARK SUMMARY")
         self._log("=" * 80)
         
         self._log(f"Total combinations tested: {result.total_combinations}")
@@ -540,11 +535,10 @@ class QuickBenchmarkRunner:
         self._log("\n" + "=" * 80)
 
 def main():
-    """Run the quick benchmark."""
-    
-    print("Starting Quick Codenames Benchmark...")
-    print("This will test focused model combinations for quick insights.")
-    print("This should take 30-60 minutes to complete.")
+    """Run the benchmark."""
+
+    print("Starting Codenames Benchmark...")
+    print("This will test model combinations to evaluate LLM performance.")
     print()
     
     # Ask for confirmation
@@ -555,7 +549,7 @@ def main():
     
     try:
         # Create and run benchmark
-        runner = QuickBenchmarkRunner(
+        runner = BenchmarkRunner(
             games_per_combination=GAMES_PER_COMBINATION,
             verbose=VERBOSE
         )
@@ -565,10 +559,8 @@ def main():
         # Save results
         main_file = result.save(OUTPUT_DIR)
         print(f"\nResults saved to: {main_file}")
-        
-        print("\nQuick benchmark completed successfully!")
-        print("\nTo run the full comprehensive benchmark, use:")
-        print("  python comprehensive_benchmark.py")
+
+        print("\nBenchmark completed successfully!")
         print("\nTo analyze these results, use:")
         print(f"  python analyze_benchmark_results.py {main_file}")
         

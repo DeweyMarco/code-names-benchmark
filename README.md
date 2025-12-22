@@ -111,7 +111,7 @@ code-names-benchmark/
 │   ├── generate_words.py # Word list generation
 │   └── words.csv         # Word pool (400+ words)
 ├── config.py              # Configuration management
-├── benchmark_runner.py    # Run multiple games with statistics
+├── benchmark.py           # Run multi-model benchmarks
 └── demo_llm_game.py       # Complete game demo
 ```
 
@@ -160,25 +160,26 @@ result = runner.run()
 print(f"Winner: {result.winner}, Turns: {result.total_turns}")
 ```
 
-### Run Benchmarks (Multiple Games)
+### Run Benchmarks (Multiple Models)
+
+```bash
+# Run the benchmark to compare models
+python benchmark.py
+
+# Analyze the results
+python analyze_benchmark_results.py benchmark_results/<result_file>.json
+```
+
+Configure models to test in `benchmark.py`:
 
 ```python
-from benchmark_runner import BenchmarkRunner
-from agents.llm import BAMLHintGiver, BAMLGuesser, BAMLModel
-from game import Team
-
-# Create benchmark with factory functions
-runner = BenchmarkRunner(
-    blue_hint_giver_factory=lambda: BAMLHintGiver(Team.BLUE, BAMLModel.GPT4O_MINI),
-    blue_guesser_factory=lambda: BAMLGuesser(Team.BLUE, BAMLModel.GPT4O_MINI),
-    red_hint_giver_factory=lambda: BAMLHintGiver(Team.RED, BAMLModel.CLAUDE_SONNET_45),
-    red_guesser_factory=lambda: BAMLGuesser(Team.RED, BAMLModel.CLAUDE_SONNET_45),
-    verbose=True
-)
-
-# Run 10 games
-result = runner.run(num_games=10)
-print(result.stats)  # Win rates, avg turns, performance metrics
+BENCHMARK_MODELS = [
+    BAMLModel.OPENROUTER_DEVSTRAL,
+    BAMLModel.OPENROUTER_MIMO_V2_FLASH,
+    BAMLModel.GPT4O_MINI,
+    BAMLModel.CLAUDE_HAIKU_45,
+]
+GAMES_PER_COMBINATION = 2  # Games per model matchup
 ```
 
 ## Cost Management

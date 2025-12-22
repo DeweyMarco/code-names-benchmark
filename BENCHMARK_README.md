@@ -17,29 +17,16 @@ Each model is tested in both roles:
 
 ## Scripts
 
-### 1. Quick Benchmark (`quick_benchmark.py`)
-**Recommended for initial testing**
+### 1. Benchmark (`benchmark.py`)
 
-- Tests focused model combinations (~50-100 games)
-- Takes 30-60 minutes to complete
-- Provides quick insights into model performance
+- Tests model combinations where each model plays at most one role per game
+- Provides performance analysis across different model configurations
 
 ```bash
-python quick_benchmark.py
+python benchmark.py
 ```
 
-### 2. Comprehensive Benchmark (`comprehensive_benchmark.py`)
-**Full analysis of all combinations**
-
-- Tests all possible model combinations (625 combinations)
-- Takes several hours to complete
-- Provides complete statistical analysis
-
-```bash
-python comprehensive_benchmark.py
-```
-
-### 3. Results Analysis (`analyze_benchmark_results.py`)
+### 2. Results Analysis (`analyze_benchmark_results.py`)
 **Analyze benchmark results**
 
 - Generates detailed performance reports
@@ -79,11 +66,7 @@ XAI_API_KEY=your_xai_key_here
 
 ### 3. Run Benchmark
 ```bash
-# Quick benchmark (recommended first)
-python quick_benchmark.py
-
-# Or comprehensive benchmark
-python comprehensive_benchmark.py
+python benchmark.py
 ```
 
 ## Understanding Results
@@ -98,7 +81,7 @@ python comprehensive_benchmark.py
 
 ### Output Files
 
-- `quick_benchmark_results/` or `benchmark_results/`: Contains JSON results
+- `benchmark_results/`: Contains JSON results
 - `analysis_plots/`: Visualization charts
 - `*_insights.md`: Detailed analysis reports
 
@@ -112,19 +95,14 @@ The analysis will show:
 
 ## Example Workflow
 
-1. **Start with Quick Benchmark**:
+1. **Run Benchmark**:
    ```bash
-   python quick_benchmark.py
+   python benchmark.py
    ```
 
 2. **Analyze Results**:
    ```bash
-   python analyze_benchmark_results.py quick_benchmark_results/quick_20241201_143022_quick.json
-   ```
-
-3. **Run Full Benchmark** (if needed):
-   ```bash
-   python comprehensive_benchmark.py
+   python analyze_benchmark_results.py benchmark_results/benchmark_20241201_143022.json
    ```
 
 ## Customization
