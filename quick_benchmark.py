@@ -44,13 +44,8 @@ load_dotenv()
 # QUICK BENCHMARK CONFIGURATION
 # ============================================================================
 
-# Models to test (as specified by user)
-BENCHMARK_MODELS = [
-    BAMLModel.OPENROUTER_DEVSTRAL,
-    BAMLModel.OPENROUTER_MIMO_V2_FLASH,
-    BAMLModel.OPENROUTER_OLMO3_32B,
-    BAMLModel.OPENROUTER_NEMOTRON_NANO,
-]
+# Models to test - uses centralized benchmark model configuration
+BENCHMARK_MODELS = get_benchmark_models()
 
 # Fixed team configuration for quick single-combination benchmark
 BLUE_HINT_GIVER = BAMLModel.OPENROUTER_DEVSTRAL
