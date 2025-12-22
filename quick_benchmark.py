@@ -25,7 +25,7 @@ from orchestrator import GameRunner, GameResult
 from agents.llm import BAMLHintGiver, BAMLGuesser, BAMLModel
 from utils import generate_word_list
 from config import Config
-from model_config import get_benchmark_models, get_model_display_name
+from model_config import get_benchmark_models, get_model_display_name, is_temperature_restricted
 
 
 def safe_get_model_display_name(model_string: str) -> str:
@@ -134,7 +134,13 @@ class QuickBenchmarkRunner:
                         'invalid_revealed': 0,
                         'invalid_other': 0
                     }
-    
+
+    def _validate_models(self):
+        """Validate model configurations and warn about temperature restrictions."""
+        for model in BENCHMARK_MODELS:
+            if is_temperature_restricted(model):
+                self._log(f"WARNING: {get_model_display_name(model)} requires temperature=1.0")
+
     def _get_team_combination_key(self, blue_hint: BAMLModel, blue_guess: BAMLModel, 
                                 red_hint: BAMLModel, red_guess: BAMLModel) -> str:
         """Generate a unique key for a team combination."""
@@ -390,7 +396,10 @@ class QuickBenchmarkRunner:
         self._log(f"Testing {len(BENCHMARK_MODELS)} models in focused combinations")
         self._log(f"Models: {[get_model_display_name(m) for m in BENCHMARK_MODELS]}")
         self._log(f"Games per combination: {self.games_per_combination}")
-        
+
+        # Validate model configurations
+        self._validate_models()
+
         # Check API keys
         if not self._check_api_keys():
             raise RuntimeError("Missing required API keys")
