@@ -418,16 +418,15 @@ class QuickBenchmarkRunner:
         # or has an advantage from playing multiple roles. With N models and 4 roles,
         # this produces permutation-style combinations (N * (N-1) * (N-2) * (N-3)).
         for blue_hint in BENCHMARK_MODELS:
-            for red_guess in BENCHMARK_MODELS:
-                for blue_guess in BENCHMARK_MODELS:
-                    if blue_guess != blue_hint:  # Blue hint giver and guesser must be different
-                        for red_hint in BENCHMARK_MODELS:
-                            if (red_hint != red_guess and  # Red hint giver and guesser must be different
-                                red_hint != blue_hint and  # Red hint giver can't be blue hint giver
-                                red_hint != blue_guess and  # Red hint giver can't be blue guesser
-                                red_guess != blue_hint and  # Red guesser can't be blue hint giver
-                                red_guess != blue_guess):   # Red guesser can't be blue guesser
-                                test_combinations.append((blue_hint, blue_guess, red_hint, red_guess))
+            for blue_guess in BENCHMARK_MODELS:
+                if blue_guess != blue_hint:  # Blue hint giver and guesser must be different
+                    for red_hint in BENCHMARK_MODELS:
+                        if red_hint != blue_hint and red_hint != blue_guess:  # Red hint different from blue team
+                            for red_guess in BENCHMARK_MODELS:
+                                if (red_guess != red_hint and  # Red hint giver and guesser must be different
+                                    red_guess != blue_hint and  # Red guesser can't be blue hint giver
+                                    red_guess != blue_guess):   # Red guesser can't be blue guesser
+                                    test_combinations.append((blue_hint, blue_guess, red_hint, red_guess))
         
         # 2. Key strategic combinations
         # Best models vs each other - ensure no model appears twice
