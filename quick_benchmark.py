@@ -29,7 +29,13 @@ from model_config import get_benchmark_models, get_model_display_name, is_temper
 
 
 def safe_get_model_display_name(model_string: str) -> str:
-    """Safely convert a model string to display name, with fallback to raw string."""
+    """Safely convert a model string to display name, with fallback to raw string.
+
+    This wrapper is needed because _print_summary() processes stored results where
+    model identifiers are raw strings (e.g., combo['blue_hint_giver']) rather than
+    BAMLModel enum values. Unlike get_model_display_name() which expects BAMLModel,
+    this handles the string-to-enum conversion with a fallback for invalid values.
+    """
     try:
         model = BAMLModel(model_string)
         return get_model_display_name(model)
