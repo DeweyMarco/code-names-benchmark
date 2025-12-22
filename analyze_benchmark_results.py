@@ -233,10 +233,10 @@ class BenchmarkAnalyzer:
         for combo_key, combo_stats in self.team_combinations.items():
             combo_data.append({
                 'combination': combo_key,
-                'blue_hint_giver': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['blue_hint_giver'], combo_stats['blue_hint_giver'])),
-                'blue_guesser': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['blue_guesser'], combo_stats['blue_guesser'])),
-                'red_hint_giver': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['red_hint_giver'], combo_stats['red_hint_giver'])),
-                'red_guesser': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['red_guesser'], combo_stats['red_guesser'])),
+                'blue_hint_giver': clean_model_name(combo_stats['blue_hint_giver']),
+                'blue_guesser': clean_model_name(combo_stats['blue_guesser']),
+                'red_hint_giver': clean_model_name(combo_stats['red_hint_giver']),
+                'red_guesser': clean_model_name(combo_stats['red_guesser']),
                 'games_played': combo_stats['games_played'],
                 'blue_wins': combo_stats['blue_wins'],
                 'red_wins': combo_stats['red_wins'],

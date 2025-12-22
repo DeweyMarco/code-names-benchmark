@@ -6,25 +6,6 @@ This document outlines bugs and issues discovered during code review of the benc
 
 ## Medium Severity Bugs
 
-### 2. Double `clean_model_name` Call
-
-**Location:** Lines 229-232
-
-```python
-'blue_hint_giver': clean_model_name(MODEL_DISPLAY_NAMES.get(combo_stats['blue_hint_giver'], combo_stats['blue_hint_giver'])),
-```
-
-**Problem:** `MODEL_DISPLAY_NAMES.get()` returns a display name (e.g., `"Devstral"`), then `clean_model_name()` tries to look it up again in the same dictionary (won't find it, falls through to fallback logic).
-
-**Fix:**
-```python
-'blue_hint_giver': clean_model_name(combo_stats['blue_hint_giver']),
-```
-
-**Impact:** Inefficiency and potential naming inconsistency between different parts of the codebase.
-
----
-
 ### 3. Incorrect Versatility Score for Zero Win Rates
 
 **Location:** Line 954
@@ -105,7 +86,6 @@ except (ValueError, TypeError, AttributeError) as e:
 
 | Bug | Severity | Impact |
 |-----|----------|--------|
-| Double `clean_model_name` | Medium | Inefficiency, possible inconsistency |
 | Zero win rate versatility | Medium | Misleading metric |
 | Draws in win rate denominator | Medium | Deflated win rates |
 | Redundant display name dict | Minor | Maintenance burden |
@@ -116,4 +96,3 @@ except (ValueError, TypeError, AttributeError) as e:
 ## Recommended Priority
 
 1. **Clean up redundant code** - Single source for display names
-2. **Fix double clean_model_name call** - Prevent inefficiency
