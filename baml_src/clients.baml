@@ -601,11 +601,11 @@ client<llm> OpenRouterLlama33_70B {
   }
 }
 
-// Qwen 3 235B A22B (Free tier) - Verified working
-client<llm> OpenRouterQwen3_235B {
+// OLMo 3.1 32B Think (Free tier)
+client<llm> OpenRouterOLMo3_32B {
   provider openai
   options {
-    model "qwen/qwen3-235b-a22b:free"
+    model "allenai/olmo-3.1-32b-think:free"
     api_key env.OPENROUTER_API_KEY
     base_url "https://openrouter.ai/api/v1"
     temperature 0.7

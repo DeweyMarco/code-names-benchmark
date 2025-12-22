@@ -49,7 +49,7 @@ MODEL_CONFIGS = {
     BAMLModel.OPENROUTER_DEEPSEEK_R1T2_CHIMERA: {"temperature": 0.7},
     BAMLModel.OPENROUTER_GLM_45_AIR: {"temperature": 0.7},
     BAMLModel.OPENROUTER_LLAMA_33_70B: {"temperature": 0.7},
-    BAMLModel.OPENROUTER_QWEN3_235B: {"temperature": 0.7},
+    BAMLModel.OPENROUTER_OLMO3_32B: {"temperature": 0.7},
 }
 
 def get_model_config(model: BAMLModel) -> Dict[str, Any]:
@@ -170,6 +170,6 @@ def get_model_display_name(model: BAMLModel) -> str:
         BAMLModel.OPENROUTER_DEEPSEEK_R1T2_CHIMERA: "DeepSeek R1T2 Chimera (OpenRouter)",
         BAMLModel.OPENROUTER_GLM_45_AIR: "GLM 4.5 Air (OpenRouter)",
         BAMLModel.OPENROUTER_LLAMA_33_70B: "Llama 3.3 70B (OpenRouter)",
-        BAMLModel.OPENROUTER_QWEN3_235B: "Qwen 3 235B (OpenRouter)",
+        BAMLModel.OPENROUTER_OLMO3_32B: "OLMo 3.1 32B (OpenRouter)",
     }
     return display_names.get(model, model.value)

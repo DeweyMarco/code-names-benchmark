@@ -87,7 +87,7 @@ class BAMLModel(Enum):
     OPENROUTER_DEEPSEEK_R1T2_CHIMERA = "OpenRouterDeepSeekR1T2Chimera"
     OPENROUTER_GLM_45_AIR = "OpenRouterGLM45Air"
     OPENROUTER_LLAMA_33_70B = "OpenRouterLlama33_70B"
-    OPENROUTER_QWEN3_235B = "OpenRouterQwen3_235B"
+    OPENROUTER_OLMO3_32B = "OpenRouterOLMo3_32B"
 
     # ==========================================================================
     # UNVERIFIED/PLANNED MODELS - May not be available; test before use

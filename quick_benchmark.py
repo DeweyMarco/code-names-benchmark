@@ -45,7 +45,18 @@ load_dotenv()
 # ============================================================================
 
 # Models to test (as specified by user)
-BENCHMARK_MODELS = get_benchmark_models()
+BENCHMARK_MODELS = [
+    BAMLModel.OPENROUTER_DEVSTRAL,
+    BAMLModel.OPENROUTER_MIMO_V2_FLASH,
+    BAMLModel.OPENROUTER_OLMO3_32B,
+    BAMLModel.OPENROUTER_NEMOTRON_NANO,
+]
+
+# Fixed team configuration for quick single-combination benchmark
+BLUE_HINT_GIVER = BAMLModel.OPENROUTER_DEVSTRAL
+BLUE_GUESSER = BAMLModel.OPENROUTER_MIMO_V2_FLASH
+RED_HINT_GIVER = BAMLModel.OPENROUTER_OLMO3_32B
+RED_GUESSER = BAMLModel.OPENROUTER_NEMOTRON_NANO
 
 # Quick benchmark settings
 GAMES_PER_COMBINATION = 2  # Quick benchmark uses fewer games; comprehensive_benchmark.py uses 3+
@@ -407,7 +418,7 @@ class QuickBenchmarkRunner:
         
         # 2. Key strategic combinations
         # Best models vs each other - ensure no model appears twice
-        top_models = [BAMLModel.GPT5, BAMLModel.GEMINI_25_PRO, BAMLModel.CLAUDE_HAIKU_45]
+        top_models = BENCHMARK_MODELS[:3] if len(BENCHMARK_MODELS) >= 3 else BENCHMARK_MODELS
         for blue_hint in top_models:
             for blue_guess in top_models:
                 if blue_guess != blue_hint:  # Different models for blue team

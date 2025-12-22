@@ -16,14 +16,9 @@ from collections import defaultdict
 
 from model_config import get_model_display_name, BAMLModel
 
-# Model display names
-MODEL_DISPLAY_NAMES = {
-    "GPT5": "GPT-5",
-    "Gemini25Pro": "Gemini 2.5 Pro", 
-    "ClaudeHaiku45": "Claude Haiku 4.5",
-    "DeepSeekReasoner": "DeepSeek Reasoner",
-    "Grok4": "Grok 4",
-}
+# Model display names - should match the actual models used in benchmarks
+# This maps internal model identifiers to display names
+MODEL_DISPLAY_NAMES = {}
 
 class BenchmarkAnalyzer:
     """Analyze comprehensive benchmark results."""
@@ -154,13 +149,16 @@ class BenchmarkAnalyzer:
     
     def find_best_hint_givers(self, top_n: int = 10) -> pd.DataFrame:
         """Find the best hint givers based on team combination performance."""
-        
+
         combo_df = self.analyze_team_combinations()
-        
+
+        # Get unique models from the data
+        all_hint_givers = set(combo_df['blue_hint_giver'].unique()) | set(combo_df['red_hint_giver'].unique())
+
         # Group by hint giver and calculate average performance
         hint_giver_performance = []
-        
-        for model in MODEL_DISPLAY_NAMES.values():
+
+        for model in all_hint_givers:
             # Blue hint giver performance
             blue_performance = combo_df[combo_df['blue_hint_giver'] == model]
             if len(blue_performance) > 0:
@@ -171,7 +169,7 @@ class BenchmarkAnalyzer:
                     'games_played': blue_performance['games_played'].sum(),
                     'total_wins': blue_performance['blue_wins'].sum()
                 })
-            
+
             # Red hint giver performance
             red_performance = combo_df[combo_df['red_hint_giver'] == model]
             if len(red_performance) > 0:
@@ -182,19 +180,24 @@ class BenchmarkAnalyzer:
                     'games_played': red_performance['games_played'].sum(),
                     'total_wins': red_performance['red_wins'].sum()
                 })
-        
+
         hint_df = pd.DataFrame(hint_giver_performance)
+        if hint_df.empty:
+            return pd.DataFrame(columns=['model', 'role', 'avg_win_rate', 'games_played', 'total_wins'])
         return hint_df.nlargest(top_n, 'avg_win_rate')
     
     def find_best_guessers(self, top_n: int = 10) -> pd.DataFrame:
         """Find the best guessers based on team combination performance."""
-        
+
         combo_df = self.analyze_team_combinations()
-        
+
+        # Get unique models from the data
+        all_guessers = set(combo_df['blue_guesser'].unique()) | set(combo_df['red_guesser'].unique())
+
         # Group by guesser and calculate average performance
         guesser_performance = []
-        
-        for model in MODEL_DISPLAY_NAMES.values():
+
+        for model in all_guessers:
             # Blue guesser performance
             blue_performance = combo_df[combo_df['blue_guesser'] == model]
             if len(blue_performance) > 0:
@@ -205,7 +208,7 @@ class BenchmarkAnalyzer:
                     'games_played': blue_performance['games_played'].sum(),
                     'total_wins': blue_performance['blue_wins'].sum()
                 })
-            
+
             # Red guesser performance
             red_performance = combo_df[combo_df['red_guesser'] == model]
             if len(red_performance) > 0:
@@ -216,22 +219,108 @@ class BenchmarkAnalyzer:
                     'games_played': red_performance['games_played'].sum(),
                     'total_wins': red_performance['red_wins'].sum()
                 })
-        
+
         guesser_df = pd.DataFrame(guesser_performance)
+        if guesser_df.empty:
+            return pd.DataFrame(columns=['model', 'role', 'avg_win_rate', 'games_played', 'total_wins'])
         return guesser_df.nlargest(top_n, 'avg_win_rate')
-    
+
+    def find_best_hint_giver_overall(self, top_n: int = 10) -> pd.DataFrame:
+        """Find the best hint givers aggregated across both teams."""
+
+        combo_df = self.analyze_team_combinations()
+
+        # Get unique models from the data
+        all_hint_givers = set(combo_df['blue_hint_giver'].unique()) | set(combo_df['red_hint_giver'].unique())
+
+        # Aggregate performance across both teams
+        hint_giver_performance = []
+
+        for model in all_hint_givers:
+            total_games = 0
+            total_wins = 0
+
+            # Blue hint giver performance
+            blue_performance = combo_df[combo_df['blue_hint_giver'] == model]
+            if len(blue_performance) > 0:
+                total_games += blue_performance['games_played'].sum()
+                total_wins += blue_performance['blue_wins'].sum()
+
+            # Red hint giver performance
+            red_performance = combo_df[combo_df['red_hint_giver'] == model]
+            if len(red_performance) > 0:
+                total_games += red_performance['games_played'].sum()
+                total_wins += red_performance['red_wins'].sum()
+
+            if total_games > 0:
+                hint_giver_performance.append({
+                    'model': model,
+                    'win_rate': total_wins / total_games,
+                    'games_played': total_games,
+                    'total_wins': total_wins
+                })
+
+        hint_df = pd.DataFrame(hint_giver_performance)
+        if hint_df.empty:
+            return pd.DataFrame(columns=['model', 'win_rate', 'games_played', 'total_wins'])
+        return hint_df.nlargest(top_n, 'win_rate')
+
+    def find_best_guesser_overall(self, top_n: int = 10) -> pd.DataFrame:
+        """Find the best guessers aggregated across both teams."""
+
+        combo_df = self.analyze_team_combinations()
+
+        # Get unique models from the data
+        all_guessers = set(combo_df['blue_guesser'].unique()) | set(combo_df['red_guesser'].unique())
+
+        # Aggregate performance across both teams
+        guesser_performance = []
+
+        for model in all_guessers:
+            total_games = 0
+            total_wins = 0
+
+            # Blue guesser performance
+            blue_performance = combo_df[combo_df['blue_guesser'] == model]
+            if len(blue_performance) > 0:
+                total_games += blue_performance['games_played'].sum()
+                total_wins += blue_performance['blue_wins'].sum()
+
+            # Red guesser performance
+            red_performance = combo_df[combo_df['red_guesser'] == model]
+            if len(red_performance) > 0:
+                total_games += red_performance['games_played'].sum()
+                total_wins += red_performance['red_wins'].sum()
+
+            if total_games > 0:
+                guesser_performance.append({
+                    'model': model,
+                    'win_rate': total_wins / total_games,
+                    'games_played': total_games,
+                    'total_wins': total_wins
+                })
+
+        guesser_df = pd.DataFrame(guesser_performance)
+        if guesser_df.empty:
+            return pd.DataFrame(columns=['model', 'win_rate', 'games_played', 'total_wins'])
+        return guesser_df.nlargest(top_n, 'win_rate')
+
     def find_dominant_combinations(self, top_n: int = 20) -> pd.DataFrame:
         """Find the most dominant team combinations."""
         
         combo_df = self.analyze_team_combinations()
-        
+
         # Filter for combinations with sufficient games (minimum 2 for statistical relevance)
         combo_df = combo_df[combo_df['games_played'] >= 2]
-        
+
+        if combo_df.empty:
+            return pd.DataFrame(columns=['blue_hint_giver', 'blue_guesser', 'red_hint_giver', 'red_guesser',
+                                        'blue_win_rate', 'games_played', 'avg_turns'])
+
         # Sort by blue win rate
         dominant_combos = combo_df.nlargest(top_n, 'blue_win_rate')
-        
-        return dominant_combos[['blue_hint_giver', 'blue_guesser', 'red_hint_giver', 'red_guesser', 
+
+        return dominant_combos[['blue_hint_giver', 'blue_guesser', 'red_hint_giver', 'red_guesser',
                                'blue_win_rate', 'games_played', 'avg_turns']]
     
     def analyze_model_synergies(self) -> pd.DataFrame:
@@ -257,7 +346,9 @@ class BenchmarkAnalyzer:
             'win_rate': 'mean',
             'games_played': 'sum'
         }).reset_index()
-        
+
+        if synergy_performance.empty:
+            return pd.DataFrame(columns=['combination', 'win_rate', 'games_played'])
         return synergy_performance.nlargest(10, 'win_rate')
     
     def generate_insights_report(self) -> str:
@@ -272,17 +363,35 @@ class BenchmarkAnalyzer:
         insights.append("# Comprehensive Codenames Benchmark Insights")
         insights.append(f"Generated from {total_games} games across {total_combinations} team combinations")
         insights.append("")
-        
-        # Best hint givers
-        insights.append("## Best Hint Givers")
+
+        # Overall best hint givers (regardless of team)
+        insights.append("## Overall Best Hint Givers")
+        insights.append("*Aggregated across both Blue and Red teams*")
+        insights.append("")
+        best_hint_overall = self.find_best_hint_giver_overall(5)
+        for i, (_, row) in enumerate(best_hint_overall.iterrows(), 1):
+            insights.append(f"{i}. **{row['model']}**: {row['win_rate']:.1%} win rate ({row['total_wins']}/{row['games_played']} games)")
+        insights.append("")
+
+        # Overall best guessers (regardless of team)
+        insights.append("## Overall Best Guessers")
+        insights.append("*Aggregated across both Blue and Red teams*")
+        insights.append("")
+        best_guesser_overall = self.find_best_guesser_overall(5)
+        for i, (_, row) in enumerate(best_guesser_overall.iterrows(), 1):
+            insights.append(f"{i}. **{row['model']}**: {row['win_rate']:.1%} win rate ({row['total_wins']}/{row['games_played']} games)")
+        insights.append("")
+
+        # Best hint givers by team
+        insights.append("## Best Hint Givers (by Team)")
         insights.append("")
         best_hint_givers = self.find_best_hint_givers(5)
         for _, row in best_hint_givers.iterrows():
             insights.append(f"- **{row['model']}** ({row['role']}): {row['avg_win_rate']:.1%} win rate ({row['total_wins']}/{row['games_played']} games)")
         insights.append("")
         
-        # Best guessers
-        insights.append("## Best Guessers")
+        # Best guessers by team
+        insights.append("## Best Guessers (by Team)")
         insights.append("")
         best_guessers = self.find_best_guessers(5)
         for _, row in best_guessers.iterrows():
@@ -315,14 +424,18 @@ class BenchmarkAnalyzer:
         winning_combos = combo_df[combo_df['blue_win_rate'] > 0.6]  # 60%+ win rate
         
         if len(winning_combos) > 0:
+            # Get all unique models from the data
+            all_models = set(combo_df['blue_hint_giver'].unique()) | set(combo_df['blue_guesser'].unique()) | \
+                        set(combo_df['red_hint_giver'].unique()) | set(combo_df['red_guesser'].unique())
+
             # Count model appearances in winning combinations
             model_counts = {}
-            for model in MODEL_DISPLAY_NAMES.values():
+            for model in all_models:
                 blue_hint_count = len(winning_combos[winning_combos['blue_hint_giver'] == model])
                 blue_guess_count = len(winning_combos[winning_combos['blue_guesser'] == model])
                 red_hint_count = len(winning_combos[winning_combos['red_hint_giver'] == model])
                 red_guess_count = len(winning_combos[winning_combos['red_guesser'] == model])
-                
+
                 total_appearances = blue_hint_count + blue_guess_count + red_hint_count + red_guess_count
                 if total_appearances > 0:
                     model_counts[model] = total_appearances
