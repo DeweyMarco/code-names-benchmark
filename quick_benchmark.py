@@ -427,21 +427,7 @@ class QuickBenchmarkRunner:
                                     red_guess != blue_hint and  # Red guesser can't be blue hint giver
                                     red_guess != blue_guess):   # Red guesser can't be blue guesser
                                     test_combinations.append((blue_hint, blue_guess, red_hint, red_guess))
-        
-        # 2. Key strategic combinations
-        # Best models vs each other - ensure no model appears twice
-        top_models = BENCHMARK_MODELS[:3] if len(BENCHMARK_MODELS) >= 3 else BENCHMARK_MODELS
-        for blue_hint in top_models:
-            for blue_guess in top_models:
-                if blue_guess != blue_hint:  # Different models for blue team
-                    for red_hint in top_models:
-                        if (red_hint != blue_hint and red_hint != blue_guess):  # Red hint different from blue team
-                            for red_guess in top_models:
-                                if (red_guess != blue_hint and red_guess != blue_guess and 
-                                    red_guess != red_hint):  # Red guesser different from all others
-                                    if (blue_hint, blue_guess, red_hint, red_guess) not in test_combinations:
-                                        test_combinations.append((blue_hint, blue_guess, red_hint, red_guess))
-        
+
         total_combinations = len(test_combinations)
         total_games = total_combinations * self.games_per_combination
         
